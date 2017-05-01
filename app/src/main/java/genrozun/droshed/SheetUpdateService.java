@@ -7,12 +7,21 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Base64;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.Authenticator;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+
+import static android.R.attr.password;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -24,10 +33,10 @@ public class SheetUpdateService extends IntentService {
     private static final String ACTION_RECEIVE_UPDATE = "genrozun.droshed.action.RECEIVE_UPDATE";
     private static final String ACTION_SEND_UPDATE = "genrozun.droshed.action.SEND_UPDATE";
 
-    private static final String LAST_CLIENT_VERSION = "genrozun.droshed.extra.LAST_CLIENT_VERSION";
+    private static final String CURRENT_CLIENT_VERSION = "genrozun.droshed.extra.CURRENT_CLIENT_VERSION";
 
 
-    private LocalBroadcastManager broadcastManager = LocalBroadcastManager.getInstance(this);
+    private LocalBroadcastManager broadcastManager;
 
     public SheetUpdateService() {
         super("SheetUpdateService");
@@ -43,7 +52,7 @@ public class SheetUpdateService extends IntentService {
     public static void startReceiveUpdate(Context context, int lastClientVersion) {
         Intent intent = new Intent(context, SheetUpdateService.class);
         intent.setAction(ACTION_RECEIVE_UPDATE);
-        intent.putExtra(LAST_CLIENT_VERSION, lastClientVersion);
+        intent.putExtra(CURRENT_CLIENT_VERSION, lastClientVersion);
         context.startService(intent);
     }
 
@@ -62,11 +71,13 @@ public class SheetUpdateService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        Log.i("SERVICE", "STARTED NEW WORK");
         if (intent != null) {
+            broadcastManager = LocalBroadcastManager.getInstance(this);
             final String action = intent.getAction();
             if (ACTION_RECEIVE_UPDATE.equals(action)) {
-                final int param1 = intent.getIntExtra(LAST_CLIENT_VERSION, 1);
-                handleActionReceiveUpdate(param1);
+                final int currentClientVersion = intent.getIntExtra(CURRENT_CLIENT_VERSION, 1);
+                handleActionReceiveUpdate(currentClientVersion);
             } else if (ACTION_SEND_UPDATE.equals(action)) {
                 handleActionSendUpdate();
             }
@@ -78,11 +89,16 @@ public class SheetUpdateService extends IntentService {
      */
     private void handleActionReceiveUpdate(int currentClientVersion) {
         //1. Ask last version
+        Log.i("SERVICE", "Asking last server version");
         int lastServerVersion = askServerLastVersion();
+        Log.i("SERVICE", "Last version is "+lastServerVersion);
 
         while(currentClientVersion < lastServerVersion) {
-
             //2. Update for each missing version, and broadcast the update
+            currentClientVersion++;
+
+            /* Ici récupérer une version et la stocker */
+
             Intent intent = new Intent("droshed-sync");
             intent.putExtra("last_version", currentClientVersion);
             broadcastManager.sendBroadcast(intent);
@@ -91,55 +107,44 @@ public class SheetUpdateService extends IntentService {
 
     private int askServerLastVersion() {
         String answer = executeLastVersionRequest();
-        Log.i("SERVER_VERSION", answer);
-
         return Integer.valueOf(answer);
     }
 
     public static String executeLastVersionRequest()
     {
-        URL url;
-        HttpURLConnection connection = null;
+        URL url = null;
         try {
-            //Create connection
-            url = new URL("127.0.0.1:8080/model1/data/lastversion");
-            connection = (HttpURLConnection)url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Authorization", "Basic "+ Base64.encodeToString("Genroa:test".getBytes(), Base64.DEFAULT));
+            url = new URL("http://192.168.1.24:8765/model1/data/lastversion");
+        } catch (MalformedURLException e) {
+            //do nothing
+        }
 
-            connection.setUseCaches (false);
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
+        HttpURLConnection urlConnection = null;
+        try {
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setDoInput(true);
+            urlConnection.setUseCaches(false);
+            BufferedInputStream in = new BufferedInputStream(urlConnection.getInputStream());
+            // Read answer
+            Log.i("SERVICE", urlConnection.getResponseMessage());
+            Log.i("SERVICE", "Length: "+urlConnection.getHeaderField("Content-Length"));
 
-            //Send request
-            DataOutputStream wr = new DataOutputStream (
-                    connection.getOutputStream ());
-            wr.flush ();
-            wr.close ();
+            byte[] tmp = new byte[Integer.valueOf(urlConnection.getHeaderField("Content-Length"))];
+            in.read(tmp);
+            ByteBuffer wrapped = ByteBuffer.wrap(tmp);
+            String num = Charset.forName("UTF-8").decode(wrapped).toString();
 
-            //Get Response
-            InputStream is = connection.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            String line;
-            StringBuilder response = new StringBuilder();
-            while((line = rd.readLine()) != null) {
-                response.append(line);
-                response.append('\r');
-            }
-            rd.close();
-            return response.toString();
+            Log.i("SERVICE", "Last version: "+num);
 
-        } catch (Exception e) {
-
+            return num;
+        } catch (IOException e) {
             e.printStackTrace();
-            return null;
-
         } finally {
-
-            if(connection != null) {
-                connection.disconnect();
+            if(urlConnection != null) {
+                urlConnection.disconnect();
             }
         }
+        return null;
     }
 
     /**

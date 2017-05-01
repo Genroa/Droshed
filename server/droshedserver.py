@@ -116,4 +116,4 @@ if __name__ == "__main__":
 				users[login.strip()] = password.strip()
 		app.config["users"] = users
 		# run the server
-		app.run(port=port)
+		app.run(host='192.168.1.24', port=port)

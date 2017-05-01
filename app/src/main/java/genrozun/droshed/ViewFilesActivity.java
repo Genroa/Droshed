@@ -1,9 +1,13 @@
 package genrozun.droshed;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -26,19 +30,44 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
+
 import pl.polidea.view.ZoomView;
 
 public class ViewFilesActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private BroadcastReceiver updateReceiver;
     private ZoomView zoomView;
+
+    public ViewFilesActivity() {
+        updateReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.i("ACTIVITY", "Received update! Current local version: "+intent.getIntExtra("last_version", -1));
+            }
+        };
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver, new IntentFilter("droshed-sync"));
         setContentView(R.layout.activity_view_files);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // Auth HTTP définie ici
+        Authenticator.setDefault(new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication("Genroa", "test".toCharArray());
+            }
+        });
+        // Demande au service de vérifier la dernière version du serveur
+        // et de mettre à jour les données locales, de manière asynchrone
+        askUpdateLastVersion();
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -115,6 +144,10 @@ public class ViewFilesActivity extends AppCompatActivity
         }
 
 
+    }
+
+    private void askUpdateLastVersion() {
+        SheetUpdateService.startReceiveUpdate(getApplicationContext(), 0);
     }
 
     @Override
