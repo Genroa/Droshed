@@ -1,9 +1,18 @@
 package genrozun.droshed;
 
 import android.app.IntentService;
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Base64;
+import android.util.Log;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -69,7 +78,7 @@ public class SheetUpdateService extends IntentService {
      */
     private void handleActionReceiveUpdate(int currentClientVersion) {
         //1. Ask last version
-        int lastServerVersion = 1;
+        int lastServerVersion = askServerLastVersion();
 
         while(currentClientVersion < lastServerVersion) {
 
@@ -77,6 +86,59 @@ public class SheetUpdateService extends IntentService {
             Intent intent = new Intent("droshed-sync");
             intent.putExtra("last_version", currentClientVersion);
             broadcastManager.sendBroadcast(intent);
+        }
+    }
+
+    private int askServerLastVersion() {
+        String answer = executeLastVersionRequest();
+        Log.i("SERVER_VERSION", answer);
+
+        return Integer.valueOf(answer);
+    }
+
+    public static String executeLastVersionRequest()
+    {
+        URL url;
+        HttpURLConnection connection = null;
+        try {
+            //Create connection
+            url = new URL("127.0.0.1:8080/model1/data/lastversion");
+            connection = (HttpURLConnection)url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", "Basic "+ Base64.encodeToString("Genroa:test".getBytes(), Base64.DEFAULT));
+
+            connection.setUseCaches (false);
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+
+            //Send request
+            DataOutputStream wr = new DataOutputStream (
+                    connection.getOutputStream ());
+            wr.flush ();
+            wr.close ();
+
+            //Get Response
+            InputStream is = connection.getInputStream();
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+            String line;
+            StringBuilder response = new StringBuilder();
+            while((line = rd.readLine()) != null) {
+                response.append(line);
+                response.append('\r');
+            }
+            rd.close();
+            return response.toString();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return null;
+
+        } finally {
+
+            if(connection != null) {
+                connection.disconnect();
+            }
         }
     }
 
