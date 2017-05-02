@@ -3,6 +3,7 @@ package genrozun.droshed;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Base64;
 import android.util.Log;
@@ -34,7 +35,7 @@ public class SheetUpdateService extends IntentService {
     private static final String ACTION_SEND_UPDATE = "genrozun.droshed.action.SEND_UPDATE";
 
     private static final String CURRENT_CLIENT_VERSION = "genrozun.droshed.extra.CURRENT_CLIENT_VERSION";
-
+    private static final String MODEL_NAME = "genrozun.droshed.extra.MODEL_NAME";
 
     private LocalBroadcastManager broadcastManager;
 
@@ -49,10 +50,10 @@ public class SheetUpdateService extends IntentService {
      * @see IntentService
      */
     // TODO: Customize helper method
-    public static void startReceiveUpdate(Context context, int lastClientVersion) {
+    public static void startReceiveUpdate(Context context, String model) {
         Intent intent = new Intent(context, SheetUpdateService.class);
         intent.setAction(ACTION_RECEIVE_UPDATE);
-        intent.putExtra(CURRENT_CLIENT_VERSION, lastClientVersion);
+        intent.putExtra(MODEL_NAME, model);
         context.startService(intent);
     }
 
@@ -76,8 +77,8 @@ public class SheetUpdateService extends IntentService {
             broadcastManager = LocalBroadcastManager.getInstance(this);
             final String action = intent.getAction();
             if (ACTION_RECEIVE_UPDATE.equals(action)) {
-                final int currentClientVersion = intent.getIntExtra(CURRENT_CLIENT_VERSION, 1);
-                handleActionReceiveUpdate(currentClientVersion);
+                final String model = intent.getStringExtra(MODEL_NAME);
+                handleActionReceiveUpdate(model);
             } else if (ACTION_SEND_UPDATE.equals(action)) {
                 handleActionSendUpdate();
             }
@@ -87,10 +88,13 @@ public class SheetUpdateService extends IntentService {
     /**
      Ask the Service to receive updates (=update the local storage)
      */
-    private void handleActionReceiveUpdate(int currentClientVersion) {
+    private void handleActionReceiveUpdate(String model) {
+        SharedPreferences sp = getSharedPreferences("droshed_"+model, MODE_PRIVATE);
+        int currentClientVersion = sp.getInt("currentVersion", 0);
+
         //1. Ask last version
-        Log.i("SERVICE", "Asking last server version");
-        int lastServerVersion = askServerLastVersion();
+        Log.i("SERVICE", "Asking last server version for model "+model);
+        int lastServerVersion = askServerLastVersion(model);
         Log.i("SERVICE", "Last version is "+lastServerVersion);
 
         while(currentClientVersion < lastServerVersion) {
@@ -98,23 +102,35 @@ public class SheetUpdateService extends IntentService {
             currentClientVersion++;
 
             /* Ici récupérer une version et la stocker */
+            String newVersionData = askServerVersion(currentClientVersion);
+
+            /* Mettre à jour les informations persistantes */
+            SharedPreferences.Editor e = sp.edit();
+            e.putInt("currentVersion", currentClientVersion);
+            e.apply();
 
             Intent intent = new Intent("droshed-sync");
             intent.putExtra("last_version", currentClientVersion);
             broadcastManager.sendBroadcast(intent);
+
         }
     }
 
-    private int askServerLastVersion() {
-        String answer = executeLastVersionRequest();
+    private int askServerLastVersion(String model) {
+        String answer = executeLastVersionRequest(model);
         return Integer.valueOf(answer);
     }
 
-    public static String executeLastVersionRequest()
+    private String askServerVersion(int version) {
+        String answer = executeReceiveVersionRequest(version);
+        return answer;
+    }
+
+    public static String executeReceiveVersionRequest(int version)
     {
         URL url = null;
         try {
-            url = new URL("http://192.168.1.24:8765/model1/data/lastversion");
+            url = new URL("http://192.168.1.24:8765/model1/data/"+version);
         } catch (MalformedURLException e) {
             //do nothing
         }
@@ -132,11 +148,48 @@ public class SheetUpdateService extends IntentService {
             byte[] tmp = new byte[Integer.valueOf(urlConnection.getHeaderField("Content-Length"))];
             in.read(tmp);
             ByteBuffer wrapped = ByteBuffer.wrap(tmp);
-            String num = Charset.forName("UTF-8").decode(wrapped).toString();
+            String body = Charset.forName("UTF-8").decode(wrapped).toString();
 
-            Log.i("SERVICE", "Last version: "+num);
+            Log.i("SERVICE", "Data: "+body);
 
-            return num;
+            return body;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
+        return null;
+    }
+
+    public static String executeLastVersionRequest(String model)
+    {
+        URL url = null;
+        try {
+            url = new URL("http://192.168.1.24:8765/"+model+"/data/lastversion");
+        } catch (MalformedURLException e) {
+            //do nothing
+        }
+
+        HttpURLConnection urlConnection = null;
+        try {
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setDoInput(true);
+            urlConnection.setUseCaches(false);
+            BufferedInputStream in = new BufferedInputStream(urlConnection.getInputStream());
+            // Read answer
+            Log.i("SERVICE", urlConnection.getResponseMessage());
+            Log.i("SERVICE", "Length: "+urlConnection.getHeaderField("Content-Length"));
+
+            byte[] tmp = new byte[Integer.valueOf(urlConnection.getHeaderField("Content-Length"))];
+            in.read(tmp);
+            ByteBuffer wrapped = ByteBuffer.wrap(tmp);
+            String body = Charset.forName("UTF-8").decode(wrapped).toString();
+
+            Log.i("SERVICE", "Last version: "+body);
+
+            return body;
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

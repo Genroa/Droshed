@@ -66,7 +66,7 @@ public class ViewFilesActivity extends AppCompatActivity
         });
         // Demande au service de vérifier la dernière version du serveur
         // et de mettre à jour les données locales, de manière asynchrone
-        askUpdateLastVersion();
+        askUpdateLastVersion("model1");
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -146,8 +146,8 @@ public class ViewFilesActivity extends AppCompatActivity
 
     }
 
-    private void askUpdateLastVersion() {
-        SheetUpdateService.startReceiveUpdate(getApplicationContext(), 0);
+    private void askUpdateLastVersion(String model) {
+        SheetUpdateService.startReceiveUpdate(getApplicationContext(), model);
     }
 
     @Override
