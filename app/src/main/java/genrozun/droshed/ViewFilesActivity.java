@@ -138,7 +138,6 @@ public class ViewFilesActivity extends AppCompatActivity
                     toast.show();
                    // tv.setVisibility(View.INVISIBLE);
                     //EditText te = new EditText(getApplicationContext());
-                   // Log.d("mydebug","i="+id);
                 }
             });
         }
