@@ -50,6 +50,12 @@ def authenticated(f):
     return decorated
 
 
+@app.route("/checkauth/")
+@authenticated
+def checkauth():
+	return "OK", 200
+
+
 @app.route("/<sheetname>/model")
 @authenticated
 def getmodel(sheetname):

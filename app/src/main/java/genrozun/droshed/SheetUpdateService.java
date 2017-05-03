@@ -31,11 +31,17 @@ import static android.R.attr.password;
  * WIP : working on update/receive logic...
  */
 public class SheetUpdateService extends IntentService {
+    private static final String ACTION_CHECK_AUTH = "genrozun.droshed.action.CHECK_AUTH";
     private static final String ACTION_RECEIVE_UPDATE = "genrozun.droshed.action.RECEIVE_UPDATE";
     private static final String ACTION_SEND_UPDATE = "genrozun.droshed.action.SEND_UPDATE";
 
+
     private static final String CURRENT_CLIENT_VERSION = "genrozun.droshed.extra.CURRENT_CLIENT_VERSION";
     private static final String MODEL_NAME = "genrozun.droshed.extra.MODEL_NAME";
+
+
+    public static final String AUTH_OK = "genrozun.droshed.auth.AUTH_OK";
+    public static final String AUTH_ERROR = "genrozun.droshed.auth.AUTH_ERROR";
 
     private LocalBroadcastManager broadcastManager;
 
@@ -49,7 +55,6 @@ public class SheetUpdateService extends IntentService {
      *
      * @see IntentService
      */
-    // TODO: Customize helper method
     public static void startReceiveUpdate(Context context, String model) {
         Intent intent = new Intent(context, SheetUpdateService.class);
         intent.setAction(ACTION_RECEIVE_UPDATE);
@@ -63,12 +68,18 @@ public class SheetUpdateService extends IntentService {
      *
      * @see IntentService
      */
-    // TODO: Customize helper method
     public static void startSendUpdate(Context context) {
         Intent intent = new Intent(context, SheetUpdateService.class);
         intent.setAction(ACTION_SEND_UPDATE);
         context.startService(intent);
     }
+
+    public static void startCheckAuth(Context context) {
+        Intent intent = new Intent(context, SheetUpdateService.class);
+        intent.setAction(ACTION_CHECK_AUTH);
+        context.startService(intent);
+    }
+
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -76,11 +87,19 @@ public class SheetUpdateService extends IntentService {
         if (intent != null) {
             broadcastManager = LocalBroadcastManager.getInstance(this);
             final String action = intent.getAction();
-            if (ACTION_RECEIVE_UPDATE.equals(action)) {
-                final String model = intent.getStringExtra(MODEL_NAME);
-                handleActionReceiveUpdate(model);
-            } else if (ACTION_SEND_UPDATE.equals(action)) {
-                handleActionSendUpdate();
+            switch(action) {
+                case ACTION_CHECK_AUTH:
+                    handleActionCheckAuth();
+                    break;
+
+                case ACTION_RECEIVE_UPDATE:
+                    final String model = intent.getStringExtra(MODEL_NAME);
+                    handleActionReceiveUpdate(model);
+                    break;
+
+                case ACTION_SEND_UPDATE:
+                    handleActionSendUpdate();
+                    break;
             }
         }
     }
@@ -89,7 +108,7 @@ public class SheetUpdateService extends IntentService {
      Ask the Service to receive updates (=update the local storage)
      */
     private void handleActionReceiveUpdate(String model) {
-        SharedPreferences sp = getSharedPreferences("droshed_"+model, MODE_PRIVATE);
+        SharedPreferences sp = getSharedPreferences("droshed_model_"+model, MODE_PRIVATE);
         int currentClientVersion = sp.getInt("currentVersion", 0);
 
         //1. Ask last version
@@ -122,8 +141,7 @@ public class SheetUpdateService extends IntentService {
     }
 
     private String askServerVersion(int version) {
-        String answer = executeReceiveVersionRequest(version);
-        return answer;
+        return executeReceiveVersionRequest(version);
     }
 
     public static String executeReceiveVersionRequest(int version)
@@ -207,5 +225,40 @@ public class SheetUpdateService extends IntentService {
     private void handleActionSendUpdate() {
         // TODO: Handle action Baz
         throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    private void handleActionCheckAuth() {
+        URL url = null;
+        try {
+            url = new URL("http://192.168.1.24:8765/checkauth");
+        } catch (MalformedURLException e) {
+            //do nothing
+        }
+
+        HttpURLConnection urlConnection = null;
+        try {
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setDoInput(true);
+            urlConnection.setUseCaches(false);
+            BufferedInputStream in = new BufferedInputStream(urlConnection.getInputStream());
+            // Read answer
+
+            Log.i("SERVICE", "Auth answer code: "+urlConnection.getResponseCode());
+
+            Intent intent = new Intent("droshed-auth");
+            if(urlConnection.getResponseCode() != 200) {
+                intent.putExtra("result", AUTH_ERROR);
+            } else {
+                intent.putExtra("result", AUTH_OK);
+            }
+            broadcastManager.sendBroadcast(intent);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
     }
 }
