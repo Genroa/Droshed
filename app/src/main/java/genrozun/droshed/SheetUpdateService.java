@@ -148,7 +148,7 @@ public class SheetUpdateService extends IntentService {
     {
         URL url = null;
         try {
-            url = new URL("http://192.168.1.24:8765/model1/data/"+version);
+            url = new URL("http://192.168.1.16:7777/model1/data/"+version);
         } catch (MalformedURLException e) {
             //do nothing
         }
@@ -185,7 +185,7 @@ public class SheetUpdateService extends IntentService {
     {
         URL url = null;
         try {
-            url = new URL("http://192.168.1.24:8765/"+model+"/data/lastversion");
+            url = new URL("http://192.168.1.16:7777/"+model+"/data/lastversion");
         } catch (MalformedURLException e) {
             //do nothing
         }
@@ -230,7 +230,7 @@ public class SheetUpdateService extends IntentService {
     private void handleActionCheckAuth() {
         URL url = null;
         try {
-            url = new URL("http://192.168.1.24:8765/checkauth");
+            url = new URL("http://192.168.1.16:7777/checkauth");
         } catch (MalformedURLException e) {
             //do nothing
         }

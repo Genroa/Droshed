@@ -50,9 +50,6 @@ public class LoginActivity extends AppCompatActivity {
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                //Log.i("ACTIVITY", "Received update! Current local version: "+intent.getIntExtra("result", -1));
-
-
                 showProgress(false);
                 String result = intent.getStringExtra("result");
                 if (result.equals(SheetUpdateService.AUTH_OK)) {
@@ -65,10 +62,6 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(getApplicationContext(), "Erreur de connexion", Toast.LENGTH_SHORT).show();
                 }
-
-
-
-                //TODO : si la connexion est bonne on mets tout dans le SharedPreferences
             }
         };
     }
@@ -81,7 +74,7 @@ public class LoginActivity extends AppCompatActivity {
         // Set up the login form.
         logins = getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
 
-        if(logins.getString("droshed_user", "").equals("")) {
+        if(logins.contains("droshed_user")) {
             user = (AutoCompleteTextView) findViewById(R.id.email);
             password = (EditText) findViewById(R.id.password);
             password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -106,8 +99,8 @@ public class LoginActivity extends AppCompatActivity {
             mLoginFormView = findViewById(R.id.login_form);
             mProgressView = findViewById(R.id.login_progress);
         } else {
-            user.setText(logins.getString("user", ""));
-            password.setText(logins.getString("password", ""));
+            user.setText(logins.getString("droshed_user", ""));
+            password.setText(logins.getString("droshed_password", ""));
             attemptLogin();
         }
 
@@ -125,7 +118,7 @@ public class LoginActivity extends AppCompatActivity {
         password.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = user.getText().toString();
+        String userLogin = user.getText().toString();
         String password = this.password.getText().toString();
 
         boolean cancel = false;
@@ -138,12 +131,12 @@ public class LoginActivity extends AppCompatActivity {
             cancel = true;
         }
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
+        // Check for a valid userLogin address.
+        if (TextUtils.isEmpty(userLogin)) {
             user.setError(getString(R.string.error_field_required));
             focusView = user;
             cancel = true;
-        } else if (!isEmailValid(email)) {
+        } else if (!isEmailValid(userLogin)) {
             user.setError(getString(R.string.error_invalid_email));
             focusView = user;
             cancel = true;
@@ -160,7 +153,7 @@ public class LoginActivity extends AppCompatActivity {
             // Auth HTTP définie ici
             Authenticator.setDefault(new Authenticator() {
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(email, password.toCharArray());
+                    return new PasswordAuthentication(userLogin, password.toCharArray());
                 }
             });
             testConnexion();
