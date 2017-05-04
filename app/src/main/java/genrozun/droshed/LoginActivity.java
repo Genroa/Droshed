@@ -74,7 +74,7 @@ public class LoginActivity extends AppCompatActivity {
         // Set up the login form.
         logins = getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
 
-        if(logins.contains("droshed_user")) {
+        if (logins.contains("droshed_user")) {
             user = (AutoCompleteTextView) findViewById(R.id.email);
             password = (EditText) findViewById(R.id.password);
             password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
