@@ -10,7 +10,7 @@
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Entrez le nom d'un modèle : "
+        android:text="@string/enter_model_name"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <EditText

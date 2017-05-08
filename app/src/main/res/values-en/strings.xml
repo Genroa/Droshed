@@ -1,19 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Droshed</string>
-    <string name="title_activity_main">MainActivity</string>
-
     <string name="action_disconnect">Disconnect</string>
-    <string name="title_activity_view_files">ViewFilesActivity</string>
-    <string name="title_activity_login">Sign in</string>
-
-    <!-- Strings related to login -->
+    <string name="action_sign_in">Sign in</string>
+    <string name="error_field_required">This field is required</string>
     <string name="prompt_name">Name</string>
     <string name="prompt_password">Password</string>
-    <string name="error_field_required">This field is required</string>
-    <string name="title_activity_file_list">FileListActivity</string>
     <string name="error_invalid_password">Password can\'t be empty</string>
     <string name="error_invalid_username">Username can\'t be empty</string>
     <string name="enter_model_name">Enter model name :</string>
     <string name="username_hint">Username</string>
-    <string name="action_sign_in">sign_in</string>
 </resources>

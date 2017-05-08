@@ -1,17 +1,34 @@
 package genrozun.droshed;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.util.Xml;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.function.Function;
+import java.util.logging.XMLFormatter;
 
 public class FileListActivity extends AppCompatActivity {
 
@@ -46,7 +63,11 @@ public class FileListActivity extends AppCompatActivity {
                                     if (result.length() == 0) {
                                         Snackbar.make(layout, "Merci d'entrer le nom d'un modèle", Snackbar.LENGTH_LONG).show();
                                     } else {
-                                        //TODO: Call le service pour récupérer le modèle.
+                                        /*
+                                         * TODO:
+                                         *  - Call le service pour récupérer le modèle.
+                                         *  - Ajouter le modèle dans la liste des models présents (stockée)
+                                         */
 
                                     }
                                 }
@@ -62,6 +83,41 @@ public class FileListActivity extends AppCompatActivity {
 
 
         });
+
+
+        /*
+        * -----------------------------------
+        * |                                 |
+        * |    Following code only here     |
+        * |            for tests            |
+        * |                                 |
+        * -----------------------------------
+        */
+        HashMap<String, Function<HashMap<String,String>, Column>> columnTypes = new HashMap<>();
+
+        columnTypes.put("text", (map) -> {
+            Log.d(FileListActivity.class.getName(), map.get("id"));
+            return new TextColumn(map.get("id"));
+        });
+
+        columnTypes.put("value", (map) -> {
+            Log.d(FileListActivity.class.getName(), map.get("id"));
+            return new ValueColumn(map.get("id"));
+        });
+
+        ModelParser mp = new ModelParser(columnTypes);
+        XmlPullParser parser = Xml.newPullParser();
+        try {
+            InputStream in_s = getResources().openRawResource(R.raw.model1);
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            parser.setInput(in_s, null);
+            mp.parse(parser);
+        } catch (IOException e) {
+            //TODO gestion des exceptions
+        } catch (XmlPullParserException e) {
+
+        }
+
     }
 
     @Override
@@ -81,5 +137,37 @@ public class FileListActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public class CustomAdapter extends ArrayAdapter<ListModelItem> {
+        private ArrayList<ListModelItem> items;
+        private int ressource;
+
+        public CustomAdapter(Context context, int resource, ArrayList<ListModelItem> items) {
+            super(context, resource, items);
+            this.ressource = ressource;
+            this.items = items;
+        }
+
+        @Override
+        public int getCount() {
+            return items.size();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ListModelItem l = items.get(position);
+            View v = convertView;
+            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            v = inflater.inflate(R.layout.file_model_list_element_layout, null);
+
+            TextView tv = (TextView) v.findViewById(R.id.model_name);
+            TextView rb = (TextView) v.findViewById(R.id.model_last_update);
+
+            tv.setText(l.getItemName());
+            rb.setText(l.getLastModif().toString());
+
+            return v;
+        }
     }
 }

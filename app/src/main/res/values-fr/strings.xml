@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Droshed</string>
+    <string name="action_disconnect">Déconnexion</string>
+    <string name="action_sign_in">Connexion</string>
+    <string name="error_field_required">Ce champ est requis</string>
+    <string name="prompt_name">Nom d\'utilisateur</string>
+    <string name="prompt_password">Mot de passe</string>
+    <string name="error_invalid_password">Le mot de passe doit être rempli</string>
+    <string name="error_invalid_username">Le nom d\'utilisateur doit être indiqué</string>
+    <string name="enter_model_name">Entrez le nom d\'un modèle :</string>
+    <string name="username_hint">Nom d\'utilisateur</string>
+</resources>

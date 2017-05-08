@@ -35,7 +35,7 @@ import java.net.PasswordAuthentication;
 public class LoginActivity extends AppCompatActivity {
 
     // UI references.
-    private AutoCompleteTextView user;
+    private EditText user;
     private EditText password;
     private View mProgressView;
     private View mLoginFormView;
@@ -75,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
         logins = getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
 
         if (logins.contains("droshed_user")) {
-            user = (AutoCompleteTextView) findViewById(R.id.email);
+            user = (EditText) findViewById(R.id.user_name_input);
             password = (EditText) findViewById(R.id.password);
             password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
@@ -119,13 +119,14 @@ public class LoginActivity extends AppCompatActivity {
 
         // Store values at the time of the login attempt.
         String userLogin = user.getText().toString();
-        String password = this.password.getText().toString();
+        String passwordTxt = this.password.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (TextUtils.isEmpty(passwordTxt)) {
+            Log.e(LoginActivity.class.getName(), passwordTxt);
             this.password.setError(getString(R.string.error_invalid_password));
             focusView = this.password;
             cancel = true;
@@ -137,7 +138,7 @@ public class LoginActivity extends AppCompatActivity {
             focusView = user;
             cancel = true;
         } else if (!isEmailValid(userLogin)) {
-            user.setError(getString(R.string.error_invalid_email));
+            user.setError(getString(R.string.error_invalid_username));
             focusView = user;
             cancel = true;
         }
@@ -153,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
             // Auth HTTP définie ici
             Authenticator.setDefault(new Authenticator() {
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(userLogin, password.toCharArray());
+                    return new PasswordAuthentication(userLogin, passwordTxt.toCharArray());
                 }
             });
             testConnexion();

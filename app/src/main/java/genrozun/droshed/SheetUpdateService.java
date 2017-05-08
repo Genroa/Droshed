@@ -44,6 +44,7 @@ public class SheetUpdateService extends IntentService {
     public static final String AUTH_ERROR = "genrozun.droshed.auth.AUTH_ERROR";
 
     private LocalBroadcastManager broadcastManager;
+    private static String CURRENT_SERVER_IP = "http://192.168.43.187:8765";
 
     public SheetUpdateService() {
         super("SheetUpdateService");
@@ -148,7 +149,7 @@ public class SheetUpdateService extends IntentService {
     {
         URL url = null;
         try {
-            url = new URL("http://192.168.1.24:8765/model1/data/"+version);
+            url = new URL(CURRENT_SERVER_IP + "/model1/data/"+version);
         } catch (MalformedURLException e) {
             //do nothing
         }
@@ -185,7 +186,7 @@ public class SheetUpdateService extends IntentService {
     {
         URL url = null;
         try {
-            url = new URL("http://192.168.1.24:8765/"+model+"/data/lastversion");
+            url = new URL(CURRENT_SERVER_IP + "/"+model+"/data/lastversion");
         } catch (MalformedURLException e) {
             //do nothing
         }
@@ -230,7 +231,7 @@ public class SheetUpdateService extends IntentService {
     private void handleActionCheckAuth() {
         URL url = null;
         try {
-            url = new URL("http://192.168.1.24:8765/checkauth");
+            url = new URL(CURRENT_SERVER_IP + "/checkauth");
         } catch (MalformedURLException e) {
             //do nothing
         }
