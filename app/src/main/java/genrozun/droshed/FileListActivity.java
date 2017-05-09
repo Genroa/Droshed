@@ -1,5 +1,6 @@
 package genrozun.droshed;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,7 +32,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.logging.XMLFormatter;
 
-public class FileListActivity extends AppCompatActivity {
+public class FileListActivity extends Activity {
 
     private String result;
 

@@ -109,8 +109,12 @@ public class SheetUpdateService extends IntentService {
      Ask the Service to receive updates (=update the local storage)
      */
     private void handleActionReceiveUpdate(String model) {
+        SharedPreferences logins = getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
+        String user = logins.getString("droshed_user", null);
+        if(user == null) throw new IllegalStateException("User can't be null");
+
         SharedPreferences sp = getSharedPreferences("droshed_model_"+model, MODE_PRIVATE);
-        int currentClientVersion = sp.getInt("currentVersion", 0);
+        int currentClientVersion = sp.getInt(user+"_lastVersion", 0);
 
         //1. Ask last version
         Log.i("SERVICE", "Asking last server version for model "+model);
