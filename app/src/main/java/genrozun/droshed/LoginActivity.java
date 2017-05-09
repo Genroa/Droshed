@@ -72,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter("droshed-auth"));
         // Set up the login form.
-        //logins = getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
+        logins = getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
         user = (EditText) findViewById(R.id.user_name_input);
         password = (EditText) findViewById(R.id.password);
 
