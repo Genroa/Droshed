@@ -95,14 +95,36 @@ public class FileListActivity extends AppCompatActivity {
         */
         HashMap<String, Function<HashMap<String,String>, Column>> columnTypes = new HashMap<>();
 
-        columnTypes.put("text", (map) -> {
+        /*(map) -> {
             Log.d(FileListActivity.class.getName(), map.get("id"));
-            return new TextColumn(map.get("id"));
+            TextColumn tc = new TextColumn(map.get("id"));
+            tc.setName(map.get("name"));
+            tc.setValue(map.get("value"));
+            return tc;
+        }*/
+        columnTypes.put("text", new Function<HashMap<String, String>, Column>() {
+            @Override
+            public Column apply(HashMap<String, String> map) {
+                Log.d(FileListActivity.class.getName(), map.get("id"));
+                return new TextColumn(map.get("id"));
+            }
         });
 
-        columnTypes.put("value", (map) -> {
+        /*(map) -> {
             Log.d(FileListActivity.class.getName(), map.get("id"));
-            return new ValueColumn(map.get("id"));
+            ValueColumn vc = new ValueColumn(map.get("id"));
+            vc.setName(map.get("name"));
+            vc.setValue(Double.parseDouble(map.get("value")));
+            vc.setMin(Double.parseDouble(map.get("min")));
+            vc.setMax(Double.parseDouble(map.get("max")));
+            return vc;
+        }*/
+        columnTypes.put("value", new Function<HashMap<String, String>, Column>() {
+            @Override
+            public Column apply(HashMap<String, String> map) {
+                Log.d(FileListActivity.class.getName(), map.get("id"));
+                return new ValueColumn(map.get("id"));
+            }
         });
 
         ModelParser mp = new ModelParser(columnTypes);
