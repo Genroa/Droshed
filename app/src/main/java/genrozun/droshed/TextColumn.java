@@ -8,6 +8,8 @@ import java.util.Objects;
 
 class TextColumn implements Column {
     private final String id;
+    private String name;
+    private String value;
 
     public TextColumn(String id) {
         this.id = Objects.requireNonNull(id);
@@ -15,16 +17,24 @@ class TextColumn implements Column {
 
     @Override
     public String getId() {
-        return null;
+        return this.id;
     }
 
     @Override
     public String getName() {
-        return null;
+        return this.name;
     }
 
     @Override
     public void setName(String name) {
+        this.name = Objects.requireNonNull(name);
+    }
 
+    public String getValue() {
+        return this.value;
+    }
+
+    public void setValue(String value) {
+        this.value = Objects.requireNonNull(value);
     }
 }

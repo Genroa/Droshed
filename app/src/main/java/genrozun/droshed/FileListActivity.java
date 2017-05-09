@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.function.Function;
 import java.util.logging.XMLFormatter;
 
@@ -102,7 +103,7 @@ public class FileListActivity extends AppCompatActivity {
             tc.setValue(map.get("value"));
             return tc;
         }*/
-        columnTypes.put("text", new Function<HashMap<String, String>, Column>() {
+        /*columnTypes.put("text", new Function<HashMap<String, String>, Column>() {
             @Override
             public Column apply(HashMap<String, String> map) {
                 Log.d(FileListActivity.class.getName(), map.get("id"));
@@ -119,25 +120,29 @@ public class FileListActivity extends AppCompatActivity {
             vc.setMax(Double.parseDouble(map.get("max")));
             return vc;
         }*/
-        columnTypes.put("value", new Function<HashMap<String, String>, Column>() {
+        /*columnTypes.put("value", new Function<HashMap<String, String>, Column>() {
             @Override
             public Column apply(HashMap<String, String> map) {
                 Log.d(FileListActivity.class.getName(), map.get("id"));
                 return new ValueColumn(map.get("id"));
             }
-        });
+        });*/
 
-        ModelParser mp = new ModelParser(columnTypes);
+        Log.e(FileListActivity.class.getName(), "before");
+        ModelParser mp = new ModelParser();
         XmlPullParser parser = Xml.newPullParser();
+        ArrayList<Column> cols = null;
         try {
             InputStream in_s = getResources().openRawResource(R.raw.model1);
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in_s, null);
-            mp.parse(parser);
+            cols = mp.parse(parser);
+            Log.e(FileListActivity.class.getName(), "cols" + cols.toString());
         } catch (IOException e) {
             //TODO gestion des exceptions
+            Log.e(FileListActivity.class.getName(), e.toString());
         } catch (XmlPullParserException e) {
-
+            Log.e(FileListActivity.class.getName(), e.toString());
         }
 
     }

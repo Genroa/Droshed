@@ -8,6 +8,10 @@ import java.util.Objects;
 
 class ValueColumn implements Column {
     private final String id;
+    private String name;
+    private Double value;
+    private Double min;
+    private Double max;
 
     public ValueColumn(String id) {
         this.id = Objects.requireNonNull(id);
@@ -15,16 +19,40 @@ class ValueColumn implements Column {
 
     @Override
     public String getId() {
-        return null;
+        return this.id;
     }
 
     @Override
     public String getName() {
-        return null;
+        return this.name;
     }
 
     @Override
     public void setName(String name) {
+        this.name = Objects.requireNonNull(name);
+    }
 
+    public Double getValue() {
+        return value;
+    }
+
+    public void setValue(Double value) {
+        this.value = value;
+    }
+
+    public Double getMin() {
+        return min;
+    }
+
+    public void setMin(Double min) {
+        this.min = min;
+    }
+
+    public Double getMax() {
+        return max;
+    }
+
+    public void setMax(Double max) {
+        this.max = max;
     }
 }

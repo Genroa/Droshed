@@ -44,7 +44,7 @@ public class SheetUpdateService extends IntentService {
     public static final String AUTH_ERROR = "genrozun.droshed.auth.AUTH_ERROR";
 
     private LocalBroadcastManager broadcastManager;
-    private static String CURRENT_SERVER_IP = "http://192.168.43.187:8765";
+    private static String CURRENT_SERVER_IP = "http://192.168.43.187:7777";
 
     public SheetUpdateService() {
         super("SheetUpdateService");

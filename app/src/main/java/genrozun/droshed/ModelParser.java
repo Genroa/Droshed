@@ -18,15 +18,15 @@ import java.util.function.Function;
  */
 
 public class ModelParser {
-    private final HashMap<String, Function<HashMap<String,String>, Column>> columnTypes;
+    //private final HashMap<String, Function<HashMap<String,String>, Column>> columnTypes;
 
-    public ModelParser(HashMap<String, Function<HashMap<String,String>, Column>> columnTypes) {
-        this.columnTypes = Objects.requireNonNull(columnTypes);
-    }
+    /*public ModelParser(/*HashMap<String, Function<HashMap<String,String>, Column>> columnTypes) {
+      //  this.columnTypes = Objects.requireNonNull(columnTypes);
+    //}
 
-    public void addType(String name, Function<HashMap<String,String>, Column> process) {
+   /* public void addType(String name, Function<HashMap<String,String>, Column> process) {
         columnTypes.put(name, process);
-    }
+    }*/
 
     /**
      * Method used to parse XML Model file as defined by the server
@@ -41,7 +41,7 @@ public class ModelParser {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    public List parse(XmlPullParser parser) throws XmlPullParserException, IOException {
+    /*public List parse(XmlPullParser parser) throws XmlPullParserException, IOException {
         ArrayList<Column> columns = null;
         int eventType = parser.getEventType();
         Column column = null;
@@ -59,23 +59,66 @@ public class ModelParser {
                     for (int i = 0; i < parser.getAttributeCount(); i++) {
                         attributes.put(parser.getAttributeName(i), parser.getAttributeValue(i));
                     }
-
-                    if(!name.equals("model")) {
-                        Log.e(ModelParser.class.getName(), attributes.toString());
-                        //TODO getOrDefault
-                        columnTypes.get(parser.getAttributeValue(null, "type")).apply(attributes);
-                    }
                     break;
+                case XmlPullParser.TEXT:
+                    attributes.put("name", parser.getText());
                 case XmlPullParser.END_TAG:
                     name = parser.getName();
-                    if (name.equalsIgnoreCase("column") && column != null) {
+                    Log.e(ModelParser.class.getName(), name);
+                    //if (name.equalsIgnoreCase("column") && column != null) {
+                        Log.e(ModelParser.class.getName(), attributes.toString());
+                        //TODO getOrDefault
+                        column = columnTypes.get(attributes.get("type")).apply(attributes);
                         columns.add(column);
-                    }
+                        attributes.clear();
+                    //}
             }
             eventType = parser.next();
         }
 
         return columns;
 
+    }*/
+
+    public ArrayList<Column> parse(XmlPullParser parser) throws XmlPullParserException, IOException {
+        ArrayList<Column> columns = null;
+        int eventType = parser.getEventType();
+        Column column = null;
+
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            String name;
+            switch(eventType) {
+                case XmlPullParser.START_DOCUMENT:
+                    columns = new ArrayList();
+                    break;
+                case XmlPullParser.START_TAG:
+                    name = parser.getName();
+                    Log.e(ModelParser.class.getName(), name + " " + parser.getAttributeCount());
+                    if(name.equalsIgnoreCase("column")) {
+                        switch (parser.getAttributeValue(null, "type")) {
+                            case "text":
+                                column = new TextColumn(parser.getAttributeValue(null, "id"));
+                                break;
+                            case "value":
+                                column = new ValueColumn(parser.getAttributeValue(null, "id"));
+                                break;
+                        }
+                    }
+
+                    break;
+                case XmlPullParser.TEXT:
+                    //Log.e(ModelParser.class.getName(), parser.getText());
+                    //column.setName(parser.getText());
+                    break;
+                case XmlPullParser.END_TAG:
+                    if(parser.getName().equalsIgnoreCase("column"))
+                        columns.add(column);
+                    break;
+                default:
+                    Log.e(ModelParser.class.getName(), "default");
+            }
+            eventType = parser.next();
+        }
+        return columns;
     }
 }
