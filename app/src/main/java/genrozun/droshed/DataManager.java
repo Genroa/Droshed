@@ -140,7 +140,9 @@ public class DataManager {
 
         try {
             if(!modelFile.createNewFile()) throw new IllegalStateException("Couldn't create new file to save the model");
-            new FileWriter(modelFile).write(modelContent);
+            FileWriter writer = new FileWriter(modelFile);
+            writer.write(modelContent);
+            writer.close();
         } catch(IOException e) {
             throw new IllegalStateException("Can't create new file to save the model, or write model schema to it");
         }
@@ -164,7 +166,9 @@ public class DataManager {
         File data = new File(userDataFolder, ""+(lastVersion+1));
 
         try {
-            new FileWriter(data).write(newContent);
+            FileWriter writer = new FileWriter(data);
+            writer.write(newContent);
+            writer.close();
             incrementLastVersionNumber(context, model);
         } catch (IOException e) {
             throw new IllegalStateException("Can't create new file to save the new version, or write data");
