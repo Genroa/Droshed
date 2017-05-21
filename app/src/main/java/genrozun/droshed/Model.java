@@ -5,4 +5,14 @@ package genrozun.droshed;
  */
 
 public class Model {
+
+
+
+    public int getColumnNumber() {
+        return 8;
+    }
+
+    public int getLineNumber() {
+        return 15;
+    }
 }

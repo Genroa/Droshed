@@ -6,6 +6,8 @@
     tools:context="genrozun.droshed.activities.SheetEditActivity">
 
     <genrozun.droshed.SheetView
+        android:id="@+id/grid"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="visible" />
 </FrameLayout>

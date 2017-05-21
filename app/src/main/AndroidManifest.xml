@@ -24,13 +24,15 @@
             android:name=".activities.LoginActivity"
             android:label="@string/title_activity_login"></activity>
         <activity android:name=".activities.FileListActivity">
+
+        </activity>
+        <activity android:name=".activities.SheetEditActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.SheetEditActivity"></activity>
     </application>
 
 </manifest>
