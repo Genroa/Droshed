@@ -1,4 +1,4 @@
-package genrozun.droshed;
+package genrozun.droshed.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -9,9 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -21,7 +19,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -29,6 +26,9 @@ import android.widget.Toast;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
+
+import genrozun.droshed.R;
+import genrozun.droshed.SheetUpdateService;
 
 /**
  * A login screen that offers login via email/password.

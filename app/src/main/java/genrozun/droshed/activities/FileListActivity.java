@@ -1,4 +1,4 @@
-package genrozun.droshed;
+package genrozun.droshed.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Xml;
@@ -17,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -28,9 +26,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.function.Function;
-import java.util.logging.XMLFormatter;
+
+import genrozun.droshed.Column;
+import genrozun.droshed.ListModelItem;
+import genrozun.droshed.ModelParser;
+import genrozun.droshed.R;
 
 public class FileListActivity extends Activity {
 

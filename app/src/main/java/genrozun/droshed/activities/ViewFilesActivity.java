@@ -1,4 +1,4 @@
-package genrozun.droshed;
+package genrozun.droshed.activities;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -27,6 +27,8 @@ import android.widget.Toast;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 
+import genrozun.droshed.R;
+import genrozun.droshed.SheetUpdateService;
 import pl.polidea.view.ZoomView;
 
 public class ViewFilesActivity extends AppCompatActivity
