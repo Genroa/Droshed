@@ -74,7 +74,7 @@ public class DataManager {
      * @param model the model name
      * @return
      */
-    private int getLastVersionNumber(Context context, String model) {
+    public int getLastVersionNumberForModel(Context context, String model) {
         SharedPreferences logins = context.getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
         String user = logins.getString("droshed_user", null);
         if(user == null) throw new IllegalStateException("User can't be null");
@@ -113,7 +113,7 @@ public class DataManager {
      * @return
      */
     public File getLastVersionData(Context context, String model) {
-        return getDataVersion(context, model, getLastVersionNumber(context, model));
+        return getDataVersion(context, model, getLastVersionNumberForModel(context, model));
     }
 
     /**
@@ -162,7 +162,7 @@ public class DataManager {
         File userDataFolder = new File(getModelDataFolder(context, model), user);
         if(!userDataFolder.exists()) if(!userDataFolder.mkdir()) throw new IllegalStateException("Couldn't create user data folder");
 
-        int lastVersion = getLastVersionNumber(context, model);
+        int lastVersion = getLastVersionNumberForModel(context, model);
         File data = new File(userDataFolder, ""+(lastVersion+1));
 
         try {

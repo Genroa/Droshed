@@ -53,7 +53,7 @@ public class LoginActivity extends Activity {
             public void onReceive(Context context, Intent intent) {
                 showProgress(false);
                 String result = intent.getStringExtra("result");
-                if (result.equals(SheetUpdateService.AUTH_OK)) {
+                if (result.equals(SheetUpdateService.OPERATION_OK)) {
                     logins.edit().putString("droshed_user", user.toString())
                             .putString("droshed_password", password.toString())
                             .commit();

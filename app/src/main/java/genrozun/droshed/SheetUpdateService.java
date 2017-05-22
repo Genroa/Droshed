@@ -25,14 +25,15 @@ public class SheetUpdateService extends IntentService {
     private static final String ACTION_CHECK_AUTH = "genrozun.droshed.action.CHECK_AUTH";
     private static final String ACTION_RECEIVE_UPDATE = "genrozun.droshed.action.RECEIVE_UPDATE";
     private static final String ACTION_SEND_UPDATE = "genrozun.droshed.action.SEND_UPDATE";
+    private static final String ACTION_GET_NEW_MODEL = "genrozun.droshed.action.GET_NEW_MODEL";
 
 
     private static final String CURRENT_CLIENT_VERSION = "genrozun.droshed.extra.CURRENT_CLIENT_VERSION";
     private static final String MODEL_NAME = "genrozun.droshed.extra.MODEL_NAME";
 
 
-    public static final String AUTH_OK = "genrozun.droshed.auth.AUTH_OK";
-    public static final String AUTH_ERROR = "genrozun.droshed.auth.AUTH_ERROR";
+    public static final String OPERATION_OK = "genrozun.droshed.auth.OPERATION_OK";
+    public static final String OPERATION_ERROR = "genrozun.droshed.auth.OPERATION_ERROR";
 
     private LocalBroadcastManager broadcastManager;
     private static String CURRENT_SERVER_IP = "http://192.168.43.187:7777";
@@ -72,6 +73,13 @@ public class SheetUpdateService extends IntentService {
         context.startService(intent);
     }
 
+    public static void startGetNewModel(Context context, String modelName) {
+        Intent intent = new Intent(context, SheetUpdateService.class);
+        intent.setAction(ACTION_GET_NEW_MODEL);
+        intent.putExtra(MODEL_NAME, modelName);
+        context.startService(intent);
+    }
+
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -92,9 +100,33 @@ public class SheetUpdateService extends IntentService {
                 case ACTION_SEND_UPDATE:
                     handleActionSendUpdate();
                     break;
+                
+                case ACTION_GET_NEW_MODEL:
+                    final String modelName = intent.getStringExtra(MODEL_NAME);
+                    handleActionGetNewModel(modelName);
+                    break;
             }
         }
     }
+
+    private void handleActionGetNewModel(String model) {
+        SharedPreferences logins = getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
+        String user = logins.getString("droshed_user", null);
+        if(user == null) throw new IllegalStateException("User can't be null");
+
+
+        //Ask server model schema
+        Log.i("SERVICE", "Asking to provide model file named "+model);
+
+        String modelSchema = askServerModelSchema(model);
+
+
+
+        Intent intent = new Intent("droshed-new-model");
+        intent.putExtra("Status", OPERATION_OK);
+        broadcastManager.sendBroadcast(intent);
+    }
+
 
     /**
      Ask the Service to receive updates (=update the local storage)
@@ -117,7 +149,7 @@ public class SheetUpdateService extends IntentService {
             currentClientVersion++;
 
             /* Ici récupérer une version et la stocker */
-            String newVersionData = askServerVersion(currentClientVersion);
+            String newVersionData = askServerVersion(model, currentClientVersion);
 
             /* Mettre à jour les informations persistantes */
             SharedPreferences.Editor e = sp.edit();
@@ -132,19 +164,22 @@ public class SheetUpdateService extends IntentService {
     }
 
     private int askServerLastVersion(String model) {
-        String answer = executeLastVersionRequest(model);
+        String answer = sendGetQuery(CURRENT_SERVER_IP + "/"+model+"/data/lastversion");
         return Integer.valueOf(answer);
     }
 
-    private String askServerVersion(int version) {
-        return executeReceiveVersionRequest(version);
+    private String askServerModelSchema(String model) {
+        return sendGetQuery(CURRENT_SERVER_IP + "/"+model+"/model");
     }
 
-    public static String executeReceiveVersionRequest(int version)
-    {
+    private String askServerVersion(String model, int version) {
+        return sendGetQuery(CURRENT_SERVER_IP + "/"+model+"/data/"+version);
+    }
+
+    private static String sendGetQuery(String urlPath) {
         URL url = null;
         try {
-            url = new URL(CURRENT_SERVER_IP + "/model1/data/"+version);
+            url = new URL(urlPath);
         } catch (MalformedURLException e) {
             //do nothing
         }
@@ -165,8 +200,8 @@ public class SheetUpdateService extends IntentService {
             String body = Charset.forName("UTF-8").decode(wrapped).toString();
 
             Log.i("SERVICE", "Data: "+body);
-
             return body;
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -174,43 +209,7 @@ public class SheetUpdateService extends IntentService {
                 urlConnection.disconnect();
             }
         }
-        return null;
-    }
 
-    public static String executeLastVersionRequest(String model)
-    {
-        URL url = null;
-        try {
-            url = new URL(CURRENT_SERVER_IP + "/"+model+"/data/lastversion");
-        } catch (MalformedURLException e) {
-            //do nothing
-        }
-
-        HttpURLConnection urlConnection = null;
-        try {
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setDoInput(true);
-            urlConnection.setUseCaches(false);
-            BufferedInputStream in = new BufferedInputStream(urlConnection.getInputStream());
-            // Read answer
-            Log.i("SERVICE", urlConnection.getResponseMessage());
-            Log.i("SERVICE", "Length: "+urlConnection.getHeaderField("Content-Length"));
-
-            byte[] tmp = new byte[Integer.valueOf(urlConnection.getHeaderField("Content-Length"))];
-            in.read(tmp);
-            ByteBuffer wrapped = ByteBuffer.wrap(tmp);
-            String body = Charset.forName("UTF-8").decode(wrapped).toString();
-
-            Log.i("SERVICE", "Last version: "+body);
-
-            return body;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if(urlConnection != null) {
-                urlConnection.disconnect();
-            }
-        }
         return null;
     }
 
@@ -243,9 +242,9 @@ public class SheetUpdateService extends IntentService {
 
             Intent intent = new Intent("droshed-auth");
             if(urlConnection.getResponseCode() != 200) {
-                intent.putExtra("result", AUTH_ERROR);
+                intent.putExtra("result", OPERATION_ERROR);
             } else {
-                intent.putExtra("result", AUTH_OK);
+                intent.putExtra("result", OPERATION_OK);
             }
             broadcastManager.sendBroadcast(intent);
 
