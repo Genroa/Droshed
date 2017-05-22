@@ -74,7 +74,7 @@ public class SheetView extends View {
         super.onDraw(canvas);
 
         Paint p = new Paint();
-        p.setColor(Color.RED);
+        p.setColor(Color.parseColor("#dddddd"));
         p.setStyle(Paint.Style.FILL);
 
         // BACKGROUND
@@ -85,7 +85,7 @@ public class SheetView extends View {
                         p);
 
         // HEADER
-        p.setColor(Color.CYAN);
+        p.setColor(Color.parseColor("#c5c5c5"));
         canvas.drawRect(paddingLeft - (viewPositionX * zoomLevel),
                         paddingTop - (viewPositionY * zoomLevel),
                         paddingLeft+(cellWidth*currentModel.getColumnNumber()*zoomLevel) - (viewPositionX * zoomLevel),
@@ -93,7 +93,7 @@ public class SheetView extends View {
                         p);
 
         // GRID
-        p.setColor(Color.GREEN);
+        p.setColor(Color.parseColor("#a1a1a1"));
         p.setStyle(Paint.Style.FILL_AND_STROKE);
         for(int line = 0; line < currentModel.getLineNumber()+1+1; line ++) {
             float linePosY = paddingTop + line*cellHeight*zoomLevel - (viewPositionY * zoomLevel);
@@ -150,7 +150,7 @@ public class SheetView extends View {
     }
 
     public void setViewPositionX(float newX) {
-        viewPositionX = Math.min(Math.max(0, newX), ((currentModel.getColumnNumber()*cellWidth*zoomLevel)-contentWidth));
+        viewPositionX = Math.min(Math.max(0, newX*zoomLevel), ((currentModel.getColumnNumber()*cellWidth*zoomLevel)-contentWidth));
         recomputeDimensions();
     }
 

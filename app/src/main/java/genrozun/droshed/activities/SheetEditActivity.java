@@ -86,17 +86,31 @@ public class SheetEditActivity extends AppCompatActivity implements View.OnTouch
     }
 
     class ScreenTouchListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        private float currentScale;
+        private float initialScale;
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            initialScale = sheetView.getZoomLevel();
+            currentScale = detector.getScaleFactor();
+            return super.onScaleBegin(detector);
+        }
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            float scaleFactor = detector.getScaleFactor();
-            sheetView.setZoomLevel((float) Math.min(Math.max(0.5, sheetView.getZoomLevel()+((scaleFactor-1)/50)), 1.5));
+
+
+            currentScale = initialScale + (detector.getScaleFactor()-1);
+            //Log.i("Scale", ""+currentScale);
+            sheetView.setZoomLevel((float) Math.min(Math.max(0.5, currentScale), 1.5));
+            sheetView.setViewPositionX(sheetView.getViewPositionX());
+            sheetView.setViewPositionY(sheetView.getViewPositionY());
             return false;
         }
 
         @Override
-        public boolean onScaleBegin(ScaleGestureDetector detector) {
-            return true;
+        public void onScaleEnd(ScaleGestureDetector detector) {
+            super.onScaleEnd(detector);
         }
     }
 }
