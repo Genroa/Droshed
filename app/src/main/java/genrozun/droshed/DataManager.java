@@ -18,7 +18,7 @@ public class DataManager {
      * @param version the asked data version
      * @return the asked file
      */
-    public File getDataVersion(Context context, String model, int version) {
+    public static File getDataVersion(Context context, String model, int version) {
         SharedPreferences logins = context.getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
         String user = logins.getString("droshed_user", null);
         if(user == null) throw new IllegalStateException("User can't be null");
@@ -37,7 +37,7 @@ public class DataManager {
      * @param context the application Context giving access to SharedPreferences
      * @return
      */
-    private File getModelsRootFolder(Context context) {
+    private static File getModelsRootFolder(Context context) {
         File modelRoot = new File(context.getFilesDir(), "models");
         if(!modelRoot.exists()) if(!modelRoot.mkdir()) throw new IllegalStateException("Couldn't create root models folder");
 
@@ -49,7 +49,7 @@ public class DataManager {
      * @param context the application Context giving access to SharedPreferences
      * @return
      */
-    private File getModelDataRootFolder(Context context) {
+    private static File getModelDataRootFolder(Context context) {
         File dataRoot = new File(context.getFilesDir(), "data");
         if(!dataRoot.exists()) if(!dataRoot.mkdir()) throw new IllegalStateException("Couldn't create root data folder");
 
@@ -62,7 +62,7 @@ public class DataManager {
      * @param model the model name
      * @return
      */
-    private File getModelDataFolder(Context context, String model) {
+    private static File getModelDataFolder(Context context, String model) {
         File dataFolder = new File(getModelDataRootFolder(context), model);
         if(!dataFolder.exists()) if(!dataFolder.mkdir()) throw new IllegalStateException("Couldn't create model data folder");
         return dataFolder;
@@ -74,7 +74,7 @@ public class DataManager {
      * @param model the model name
      * @return
      */
-    public int getLastVersionNumberForModel(Context context, String model) {
+    public static int getLastVersionNumberForModel(Context context, String model) {
         SharedPreferences logins = context.getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
         String user = logins.getString("droshed_user", null);
         if(user == null) throw new IllegalStateException("User can't be null");
@@ -91,7 +91,7 @@ public class DataManager {
      * @param context the application Context giving access to SharedPreferences
      * @param model the model name
      */
-    private void incrementLastVersionNumber(Context context, String model) {
+    private static void incrementLastVersionNumber(Context context, String model) {
         SharedPreferences logins = context.getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
         String user = logins.getString("droshed_user", null);
         if(user == null) throw new IllegalStateException("User can't be null");
@@ -112,7 +112,7 @@ public class DataManager {
      * @param model the model name
      * @return
      */
-    public File getLastVersionData(Context context, String model) {
+    public static File getLastVersionData(Context context, String model) {
         return getDataVersion(context, model, getLastVersionNumberForModel(context, model));
     }
 
@@ -122,7 +122,7 @@ public class DataManager {
      * @param model the model name
      * @return
      */
-    public File getModel(Context context, String model) {
+    public static File getModel(Context context, String model) {
         File modelFile = new File(getModelsRootFolder(context), model);
         if(!modelFile.exists()) throw new IllegalStateException("Model "+model+" doesn't exist");
 
@@ -135,7 +135,7 @@ public class DataManager {
      * @param modelName the model name
      * @param modelContent the new model content
      */
-    public void createModel(Context context, String modelName, String modelContent) {
+    public static void createModel(Context context, String modelName, String modelContent) {
         File modelFile = new File(getModelsRootFolder(context), modelName);
 
         try {
@@ -154,7 +154,7 @@ public class DataManager {
      * @param model the model name
      * @param newContent the new data content
      */
-    public void createNewVersion(Context context, String model, String newContent) {
+    public static void createNewVersion(Context context, String model, String newContent) {
         SharedPreferences logins = context.getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
         String user = logins.getString("droshed_user", null);
         if(user == null) throw new IllegalStateException("User can't be null");

@@ -119,7 +119,7 @@ public class SheetUpdateService extends IntentService {
         Log.i("SERVICE", "Asking to provide model file named "+model);
 
         String modelSchema = askServerModelSchema(model);
-
+        DataManager.createModel(getApplicationContext(), model, modelSchema);
 
 
         Intent intent = new Intent("droshed-new-model");
