@@ -64,9 +64,6 @@ public class SheetView extends View {
         cellWidth = (contentWidth / 4)* zoomLevel;
         cellHeight = (contentHeight / 9)* zoomLevel;
 
-        viewPositionX = 0;//cellWidth/2;
-        viewPositionY = 0;//cellHeight/2;
-
         currentModel = new Model();
         invalidate();
         requestLayout();
@@ -81,13 +78,16 @@ public class SheetView extends View {
         p.setStyle(Paint.Style.FILL);
 
         // BACKGROUND
-        canvas.drawRect(paddingLeft, paddingTop, paddingLeft+contentWidth, paddingTop+contentHeight, p);
-
-        // HEADER
-        Log.i("Width header", contentWidth+" "+currentModel.getColumnNumber()+" "+((contentWidth*currentModel.getColumnNumber()*zoomLevel) - (viewPositionX * zoomLevel)));
-        p.setColor(Color.CYAN);
         canvas.drawRect(paddingLeft,
                         paddingTop,
+                        paddingLeft+contentWidth,
+                        paddingTop+contentHeight,
+                        p);
+
+        // HEADER
+        p.setColor(Color.CYAN);
+        canvas.drawRect(paddingLeft - (viewPositionX * zoomLevel),
+                        paddingTop - (viewPositionY * zoomLevel),
                         paddingLeft+(cellWidth*currentModel.getColumnNumber()*zoomLevel) - (viewPositionX * zoomLevel),
                         paddingTop+cellHeight*zoomLevel - (viewPositionY * zoomLevel),
                         p);
@@ -112,10 +112,6 @@ public class SheetView extends View {
                             paddingTop+(cellHeight*(currentModel.getLineNumber()+1)*zoomLevel)- (viewPositionY * zoomLevel),
                             p);
         }
-
-
-
-        Log.i("draw", "Drawed view");
     }
 
     @Override
@@ -138,7 +134,28 @@ public class SheetView extends View {
     }
 
     public void setZoomLevel(float newLevel) {
-        zoomLevel = newLevel;
+        //currentModel.getColumnNumber() * cellWidth * zoomLevel = contentWidth;
+        //zoomLevel = contentWidth / (currentModel.getColumnNumber() * cellWidth)
+        Log.i("Zoom", "Max zoomLevel: "+contentWidth / (currentModel.getColumnNumber() * cellWidth));
+        zoomLevel = Math.max(newLevel, contentWidth / (currentModel.getColumnNumber() * cellWidth));
+        recomputeDimensions();
+    }
+
+    public float getViewPositionX() {
+        return viewPositionX;
+    }
+
+    public float getViewPositionY() {
+        return viewPositionY;
+    }
+
+    public void setViewPositionX(float newX) {
+        viewPositionX = Math.min(Math.max(0, newX), ((currentModel.getColumnNumber()*cellWidth*zoomLevel)-contentWidth));
+        recomputeDimensions();
+    }
+
+    public void setViewPositionY(float newY) {
+        viewPositionY = Math.min(Math.max(0, newY), (((currentModel.getLineNumber()+1)*cellHeight*zoomLevel)-contentHeight));
         recomputeDimensions();
     }
 }
