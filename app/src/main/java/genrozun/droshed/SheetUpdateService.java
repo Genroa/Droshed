@@ -120,13 +120,18 @@ public class SheetUpdateService extends IntentService {
         Log.i("SERVICE", "Asking to provide model file named "+model);
 
         String modelSchema = askServerModelSchema(model);
+
+        Intent intent = new Intent("droshed-new-model");
+        intent.putExtra("model_name", model);
+
         if(modelSchema == null) {
             Log.i("SERVICE", "Model schema is null");
+            intent.putExtra("status", OPERATION_ERROR);
+            broadcastManager.sendBroadcast(intent);
         } else {
             DataManager.createModel(getApplicationContext(), model, modelSchema);
 
-            Intent intent = new Intent("droshed-new-model");
-            intent.putExtra("Status", OPERATION_OK);
+            intent.putExtra("model_name", model);
             broadcastManager.sendBroadcast(intent);
         }
     }
