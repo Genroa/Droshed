@@ -2,11 +2,13 @@ package genrozun.droshed;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-
+import java.io.OutputStreamWriter;
 
 
 public class DataManager {
@@ -139,9 +141,10 @@ public class DataManager {
         File modelFile = new File(getModelsRootFolder(context), modelName);
 
         try {
-            if(!modelFile.createNewFile()) throw new IllegalStateException("Couldn't create new file to save the model");
-            //Context, ou environment
-            FileWriter writer = new FileWriter(modelFile);
+            Log.i("DATAMANAGER", "Creating new model file: "+modelFile.getAbsolutePath());
+            FileOutputStream outStream = new FileOutputStream(modelFile);
+
+            OutputStreamWriter writer = new OutputStreamWriter(outStream);
             writer.write(modelContent);
             writer.close();
         } catch(IOException e) {

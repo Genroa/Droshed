@@ -68,6 +68,7 @@ public class SheetUpdateService extends IntentService {
     }
 
     public static void startCheckAuth(Context context) {
+        Log.i("SERVICE", "CheckAuth task");
         Intent intent = new Intent(context, SheetUpdateService.class);
         intent.setAction(ACTION_CHECK_AUTH);
         context.startService(intent);
@@ -119,12 +120,15 @@ public class SheetUpdateService extends IntentService {
         Log.i("SERVICE", "Asking to provide model file named "+model);
 
         String modelSchema = askServerModelSchema(model);
-        DataManager.createModel(getApplicationContext(), model, modelSchema);
+        if(modelSchema == null) {
+            Log.i("SERVICE", "Model schema is null");
+        } else {
+            DataManager.createModel(getApplicationContext(), model, modelSchema);
 
-
-        Intent intent = new Intent("droshed-new-model");
-        intent.putExtra("Status", OPERATION_OK);
-        broadcastManager.sendBroadcast(intent);
+            Intent intent = new Intent("droshed-new-model");
+            intent.putExtra("Status", OPERATION_OK);
+            broadcastManager.sendBroadcast(intent);
+        }
     }
 
 
@@ -164,19 +168,42 @@ public class SheetUpdateService extends IntentService {
     }
 
     private int askServerLastVersion(String model) {
-        String answer = sendGetQuery(CURRENT_SERVER_IP + "/"+model+"/data/lastversion");
-        return Integer.valueOf(answer);
+        HTTPResponse response = sendGetQuery(CURRENT_SERVER_IP + "/"+model+"/data/lastversion");
+        try {
+            if(response.header.getResponseCode() == 200) {
+                return Integer.valueOf(response.body);
+            }
+        } catch(IOException e) {
+            Log.i("SERVICE", "Error: "+e);
+        }
+        return -1;
     }
 
     private String askServerModelSchema(String model) {
-        return sendGetQuery(CURRENT_SERVER_IP + "/"+model+"/model");
+        HTTPResponse response = sendGetQuery(CURRENT_SERVER_IP + "/"+model+"/model");
+        try {
+            if(response.header.getResponseCode() == 200) {
+                return response.body;
+            }
+        } catch(IOException e) {
+            Log.i("SERVICE", "Error: "+e);
+        }
+        return null;
     }
 
     private String askServerVersion(String model, int version) {
-        return sendGetQuery(CURRENT_SERVER_IP + "/"+model+"/data/"+version);
+        HTTPResponse response = sendGetQuery(CURRENT_SERVER_IP + "/"+model+"/data/"+version);
+        try {
+            if(response.header.getResponseCode() == 200) {
+                return response.body;
+            }
+        } catch(IOException e) {
+            Log.i("SERVICE", "Error: "+e);
+        }
+        return null;
     }
 
-    private static String sendGetQuery(String urlPath) {
+    private static HTTPResponse sendGetQuery(String urlPath) {
         URL url = null;
         try {
             url = new URL(urlPath);
@@ -193,14 +220,14 @@ public class SheetUpdateService extends IntentService {
             // Read answer
             Log.i("SERVICE", urlConnection.getResponseMessage());
             Log.i("SERVICE", "Length: "+urlConnection.getHeaderField("Content-Length"));
-
+            Log.i("SERVICE", urlConnection.toString());
             byte[] tmp = new byte[Integer.valueOf(urlConnection.getHeaderField("Content-Length"))];
             in.read(tmp);
             ByteBuffer wrapped = ByteBuffer.wrap(tmp);
             String body = Charset.forName("UTF-8").decode(wrapped).toString();
 
             Log.i("SERVICE", "Data: "+body);
-            return body;
+            return new HTTPResponse(urlConnection, body);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -210,7 +237,7 @@ public class SheetUpdateService extends IntentService {
             }
         }
 
-        return null;
+        return new HTTPResponse(urlConnection, null);
     }
 
     /**
@@ -230,6 +257,7 @@ public class SheetUpdateService extends IntentService {
             //do nothing
         }
 
+        Log.i("SERVICE", "CheckAuth: Asking server");
         HttpURLConnection urlConnection = null;
         try {
             urlConnection = (HttpURLConnection) url.openConnection();
