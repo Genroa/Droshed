@@ -82,9 +82,10 @@ public class DataManager {
         if(user == null) throw new IllegalStateException("User can't be null");
 
         SharedPreferences modelMetadata = context.getSharedPreferences("droshed_model_"+model, Context.MODE_PRIVATE);
-        int lastVersion = modelMetadata.getInt(user+"_lastVersion", 0);
-        if(lastVersion == 0) throw new IllegalStateException("Wrong metadata for model "+model);
+        int lastVersion = modelMetadata.getInt(user+"_lastVersion", -1);
+        if(lastVersion == -1) throw new IllegalStateException("Wrong metadata for model "+model);
 
+        Log.i("DATAMANAGER", "Last data version for model "+model+" is "+lastVersion);
         return lastVersion;
     }
 
@@ -100,8 +101,8 @@ public class DataManager {
 
         SharedPreferences modelMetadata = context.getSharedPreferences("droshed_model_"+model, Context.MODE_PRIVATE);
 
-        int lastVersion = modelMetadata.getInt(user+"_lastVersion", 0);
-        if(lastVersion == 0) throw new IllegalStateException("Wrong metadata for model "+model);
+        int lastVersion = modelMetadata.getInt(user+"_lastVersion", -1);
+        if(lastVersion == -1) throw new IllegalStateException("Wrong metadata for model "+model);
 
         SharedPreferences.Editor editor = modelMetadata.edit();
         editor.putInt(user+"_lastVersion", lastVersion+1);
@@ -139,6 +140,9 @@ public class DataManager {
      */
     public static void createModel(Context context, String modelName, String modelContent) {
         File modelFile = new File(getModelsRootFolder(context), modelName);
+        SharedPreferences logins = context.getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
+        String user = logins.getString("droshed_user", null);
+        if(user == null) throw new IllegalStateException("User can't be null");
 
         try {
             Log.i("DATAMANAGER", "Creating new model file: "+modelFile.getAbsolutePath());
@@ -147,6 +151,14 @@ public class DataManager {
             OutputStreamWriter writer = new OutputStreamWriter(outStream);
             writer.write(modelContent);
             writer.close();
+
+
+            SharedPreferences modelMetadata = context.getSharedPreferences("droshed_model_"+modelName, Context.MODE_PRIVATE);
+
+            SharedPreferences.Editor editor = modelMetadata.edit();
+            editor.putInt(user+"_lastVersion", 0);
+            editor.apply();
+
         } catch(IOException e) {
             throw new IllegalStateException("Can't create new file to save the model, or write model schema to it");
         }
