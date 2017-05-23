@@ -37,4 +37,9 @@ class TextColumn implements Column {
     public void setValue(String value) {
         this.value = Objects.requireNonNull(value);
     }
+
+    @Override
+    public String toString() {
+        return "Column " + id + " current value " + value;
+    }
 }

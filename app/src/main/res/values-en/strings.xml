@@ -10,4 +10,6 @@
     <string name="error_invalid_username">Username can\'t be empty</string>
     <string name="enter_model_name">Enter model name :</string>
     <string name="username_hint">Username</string>
+    <string name="title_activity_login">Droshed Sign in</string>
+    <string name="title_activity_file_list">File List</string>
 </resources>

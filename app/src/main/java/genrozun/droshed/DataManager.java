@@ -140,6 +140,7 @@ public class DataManager {
 
         try {
             if(!modelFile.createNewFile()) throw new IllegalStateException("Couldn't create new file to save the model");
+            //Context, ou environment
             FileWriter writer = new FileWriter(modelFile);
             writer.write(modelContent);
             writer.close();

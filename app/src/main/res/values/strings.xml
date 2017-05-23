@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Droshed</string>
-    <string name="title_activity_main">MainActivity</string>
 
     <string name="action_disconnect">Disconnect</string>
     <string name="title_activity_view_files">ViewFilesActivity</string>

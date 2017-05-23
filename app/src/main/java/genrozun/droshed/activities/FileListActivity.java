@@ -1,14 +1,17 @@
 package genrozun.droshed.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.util.Xml;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,33 +19,47 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.function.Function;
+import java.util.Date;
 
-import genrozun.droshed.Column;
 import genrozun.droshed.ListModelItem;
-import genrozun.droshed.ModelParser;
 import genrozun.droshed.R;
+import genrozun.droshed.SheetUpdateService;
 
-public class FileListActivity extends Activity {
+public class FileListActivity extends AppCompatActivity {
+    private String modelName;
+    private Context appContext;
+    private RelativeLayout layout;
 
-    private String result;
+    private BroadcastReceiver receiver;
+
+    public FileListActivity() {
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String result = intent.getStringExtra("Status");
+                if (result.equals(SheetUpdateService.OPERATION_OK)) {
+                    Snackbar.make(layout, "Success getting model", Snackbar.LENGTH_SHORT).show();
+                } else {
+                    Snackbar.make(layout, "Le modèle n'existe pas.", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+        };
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_list);
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter("droshed-new-model"));
+        this.appContext = getApplicationContext();
 
-        RelativeLayout layout = (RelativeLayout) findViewById(R.id.activity_file_list);
+        layout = (RelativeLayout) findViewById(R.id.activity_file_list);
 
         FloatingActionButton addFab = (FloatingActionButton) findViewById(R.id.addFab);
 
@@ -61,16 +78,31 @@ public class FileListActivity extends Activity {
                     .setPositiveButton("OK",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    result = userInput.getText().toString();
+                                    modelName = userInput.getText().toString();
 
-                                    if (result.length() == 0) {
+                                    if (modelName.length() == 0) {
                                         Snackbar.make(layout, "Merci d'entrer le nom d'un modèle", Snackbar.LENGTH_LONG).show();
                                     } else {
-                                        /*
-                                         * TODO:
-                                         *  - Call le service pour récupérer le modèle.
-                                         *  - Ajouter le modèle dans la liste des models présents (stockée)
-                                         */
+                                        Log.e(FileListActivity.class.getName(), modelName);
+
+                                        String username = getSharedPreferences("droshed_logins",Context.MODE_PRIVATE).getString("droshed_user", "");
+                                        /*getSharedPreferences("droshed_model_"+modelName, Context.MODE_PRIVATE)
+                                                .edit()
+                                                .putInt(username+"_lastVersion", 1)
+                                                .commit();*/
+
+                                        SheetUpdateService.startGetNewModel(appContext, modelName);
+                                        /*try {
+                                            File f = dm.getModel(appContext, modelName);
+                                            Log.e(FileListActivity.class.getName(),f.toString());
+                                        } catch (IllegalStateException e) {
+                                            String st = "";
+                                            for (StackTraceElement ste: e.getStackTrace()) {
+                                                st += "\n" + ste.toString();
+                                            }
+                                            Log.e(FileListActivity.class.getName(), st);
+                                            Snackbar.make(layout, "Le modèle n'existe pas.", Snackbar.LENGTH_LONG).show();
+                                        }*/
 
                                     }
                                 }
@@ -83,10 +115,14 @@ public class FileListActivity extends Activity {
                             });
             AlertDialog alertDialog = alertDialogBuilder.create();
             alertDialog.show();
-
-
         });
-
+        ArrayList<ListModelItem> models = new ArrayList<>();
+        ListModelItem lmi = new ListModelItem("model");
+        lmi.setLastModif(new Date());
+        models.add(lmi);
+        CustomAdapter adapter = new CustomAdapter(getApplicationContext(), R.layout.file_model_list_element_layout, models);
+        ListView lv = (ListView) layout.findViewById(R.id.list_view_models);
+        lv.setAdapter(adapter);
 
         /*
         * -----------------------------------
@@ -96,7 +132,7 @@ public class FileListActivity extends Activity {
         * |                                 |
         * -----------------------------------
         */
-        HashMap<String, Function<HashMap<String,String>, Column>> columnTypes = new HashMap<>();
+        /*HashMap<String, Function<HashMap<String,String>, Column>> columnTypes = new HashMap<>();
 
         /*(map) -> {
             Log.d(FileListActivity.class.getName(), map.get("id"));
@@ -130,7 +166,7 @@ public class FileListActivity extends Activity {
             }
         });*/
 
-        Log.e(FileListActivity.class.getName(), "before");
+        /*Log.e(FileListActivity.class.getName(), "before");
         ModelParser mp = new ModelParser();
         XmlPullParser parser = Xml.newPullParser();
         ArrayList<Column> cols = null;
@@ -145,7 +181,7 @@ public class FileListActivity extends Activity {
             Log.e(FileListActivity.class.getName(), e.toString());
         } catch (XmlPullParserException e) {
             Log.e(FileListActivity.class.getName(), e.toString());
-        }
+        }*/
 
     }
 
@@ -170,11 +206,9 @@ public class FileListActivity extends Activity {
 
     public class CustomAdapter extends ArrayAdapter<ListModelItem> {
         private ArrayList<ListModelItem> items;
-        private int ressource;
 
         public CustomAdapter(Context context, int resource, ArrayList<ListModelItem> items) {
             super(context, resource, items);
-            this.ressource = ressource;
             this.items = items;
         }
 
@@ -186,17 +220,16 @@ public class FileListActivity extends Activity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             ListModelItem l = items.get(position);
-            View v = convertView;
             LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = inflater.inflate(R.layout.file_model_list_element_layout, null);
+            convertView = inflater.inflate(R.layout.file_model_list_element_layout, null);
 
-            TextView tv = (TextView) v.findViewById(R.id.model_name);
-            TextView rb = (TextView) v.findViewById(R.id.model_last_update);
+            TextView tv = (TextView) convertView.findViewById(R.id.model_name);
+            TextView rb = (TextView) convertView.findViewById(R.id.model_last_version);
 
             tv.setText(l.getItemName());
             rb.setText(l.getLastModif().toString());
 
-            return v;
+            return convertView;
         }
     }
 }

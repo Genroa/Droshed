@@ -55,4 +55,9 @@ class ValueColumn implements Column {
     public void setMax(Double max) {
         this.max = max;
     }
+
+    @Override
+    public String toString() {
+        return "Column " + id + " current value " + value;
+    }
 }

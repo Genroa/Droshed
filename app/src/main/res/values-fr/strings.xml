@@ -10,4 +10,6 @@
     <string name="error_invalid_username">Le nom d\'utilisateur doit être indiqué</string>
     <string name="enter_model_name">Entrez le nom d\'un modèle :</string>
     <string name="username_hint">Nom d\'utilisateur</string>
+    <string name="title_activity_login">Connexion à Droshed</string>
+    <string name="title_activity_file_list">Liste des fichiers</string>
 </resources>

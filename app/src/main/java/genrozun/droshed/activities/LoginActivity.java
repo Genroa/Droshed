@@ -77,6 +77,14 @@ public class LoginActivity extends Activity {
         user = (EditText) findViewById(R.id.user_name_input);
         password = (EditText) findViewById(R.id.password);
 
+        Button signInButton = (Button) findViewById(R.id.sign_in_button);
+        signInButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptLogin();
+            }
+        });
+
         if (logins.contains("droshed_user")) {
             password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
@@ -89,13 +97,7 @@ public class LoginActivity extends Activity {
                 }
             });
 
-            Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-            mEmailSignInButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    attemptLogin();
-                }
-            });
+
 
             mLoginFormView = findViewById(R.id.login_form);
             mProgressView = findViewById(R.id.login_progress);
