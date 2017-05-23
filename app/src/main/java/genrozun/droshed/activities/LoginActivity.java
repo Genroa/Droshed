@@ -13,6 +13,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -33,7 +34,7 @@ import genrozun.droshed.SheetUpdateService;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends Activity {
+public class LoginActivity extends AppCompatActivity {
 
     // UI references.
     private EditText user;
@@ -80,7 +81,7 @@ public class LoginActivity extends Activity {
         mProgressView = findViewById(R.id.login_progress);
 
         if (!logins.getString("droshed_user", "").equals("")) {
-            Log.e(LoginActivity.class.getName(), "enter condition "  + logins.getString("droshed_user", ""));
+            Log.i(LoginActivity.class.getName(), "enter condition "  + logins.getString("droshed_user", ""));
 
             user.setText(logins.getString("droshed_user", ""));
             password.setText(logins.getString("droshed_password", ""));
@@ -126,10 +127,6 @@ public class LoginActivity extends Activity {
             user.setError(getString(R.string.error_field_required));
             focusView = user;
             cancel = true;
-        } else if (!isEmailValid(userLogin)) {
-            user.setError(getString(R.string.error_invalid_username));
-            focusView = user;
-            cancel = true;
         }
 
         if (cancel) {
@@ -152,16 +149,6 @@ public class LoginActivity extends Activity {
 
     private void testConnexion() {
         SheetUpdateService.startCheckAuth(getApplicationContext());
-    }
-
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return true;
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return true;
     }
 
     /**

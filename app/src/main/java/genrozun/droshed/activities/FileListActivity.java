@@ -83,7 +83,7 @@ public class FileListActivity extends AppCompatActivity {
                                     if (modelName.length() == 0) {
                                         Snackbar.make(layout, "Merci d'entrer le nom d'un modèle", Snackbar.LENGTH_LONG).show();
                                     } else {
-                                        Log.e(FileListActivity.class.getName(), modelName);
+                                        Log.i(FileListActivity.class.getName(), modelName);
 
                                         String username = getSharedPreferences("droshed_logins",Context.MODE_PRIVATE).getString("droshed_user", "");
                                         /*getSharedPreferences("droshed_model_"+modelName, Context.MODE_PRIVATE)
