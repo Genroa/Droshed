@@ -54,8 +54,8 @@ public class LoginActivity extends Activity {
                 showProgress(false);
                 String result = intent.getStringExtra("result");
                 if (result.equals(SheetUpdateService.OPERATION_OK)) {
-                    logins.edit().putString("droshed_user", user.toString())
-                            .putString("droshed_password", password.toString())
+                    logins.edit().putString("droshed_user", user.getText().toString())
+                            .putString("droshed_password", password.getText().toString())
                             .commit();
 
                     Intent priciplePageIntent = new Intent(getApplicationContext(), FileListActivity.class);
@@ -76,6 +76,16 @@ public class LoginActivity extends Activity {
         logins = getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
         user = (EditText) findViewById(R.id.user_name_input);
         password = (EditText) findViewById(R.id.password);
+        mLoginFormView = findViewById(R.id.login_form);
+        mProgressView = findViewById(R.id.login_progress);
+
+        if (!logins.getString("droshed_user", "").equals("")) {
+            Log.e(LoginActivity.class.getName(), "enter condition "  + logins.getString("droshed_user", ""));
+
+            user.setText(logins.getString("droshed_user", ""));
+            password.setText(logins.getString("droshed_password", ""));
+            //attemptLogin();
+        }
 
         Button signInButton = (Button) findViewById(R.id.sign_in_button);
         signInButton.setOnClickListener(new OnClickListener() {
@@ -84,30 +94,6 @@ public class LoginActivity extends Activity {
                 attemptLogin();
             }
         });
-
-        if (logins.contains("droshed_user")) {
-            password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                    if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                        attemptLogin();
-                        return true;
-                    }
-                    return false;
-                }
-            });
-
-
-
-            mLoginFormView = findViewById(R.id.login_form);
-            mProgressView = findViewById(R.id.login_progress);
-        } else {
-            user.setText(logins.getString("droshed_user", ""));
-            password.setText(logins.getString("droshed_password", ""));
-            attemptLogin();
-        }
-
-
     }
 
     /**
