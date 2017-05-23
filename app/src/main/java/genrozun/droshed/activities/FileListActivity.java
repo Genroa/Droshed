@@ -27,6 +27,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Date;
 
+import genrozun.droshed.DataManager;
 import genrozun.droshed.ListModelItem;
 import genrozun.droshed.R;
 import genrozun.droshed.SheetUpdateService;
@@ -35,6 +36,8 @@ public class FileListActivity extends AppCompatActivity {
     private String modelName;
     private Context appContext;
     private RelativeLayout layout;
+    ArrayList<ListModelItem> models = new ArrayList<>();
+    CustomAdapter adapter;
 
     private BroadcastReceiver receiver;
 
@@ -42,9 +45,13 @@ public class FileListActivity extends AppCompatActivity {
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                String result = intent.getStringExtra("Status");
+                String result = intent.getStringExtra("status");
                 if (result.equals(SheetUpdateService.OPERATION_OK)) {
                     Snackbar.make(layout, "Success getting model", Snackbar.LENGTH_SHORT).show();
+                    String modelName = intent.getStringExtra("model_name");
+                    int modelVersion = DataManager.getLastVersionNumberForModel(getApplicationContext(), modelName);
+                    models.add(new ListModelItem(modelName, modelVersion));
+                    adapter.notifyDataSetChanged();
                 } else {
                     Snackbar.make(layout, "Le modèle n'existe pas.", Snackbar.LENGTH_SHORT).show();
                 }
@@ -84,26 +91,7 @@ public class FileListActivity extends AppCompatActivity {
                                         Snackbar.make(layout, "Merci d'entrer le nom d'un modèle", Snackbar.LENGTH_LONG).show();
                                     } else {
                                         Log.i(FileListActivity.class.getName(), modelName);
-
-                                        String username = getSharedPreferences("droshed_logins",Context.MODE_PRIVATE).getString("droshed_user", "");
-                                        /*getSharedPreferences("droshed_model_"+modelName, Context.MODE_PRIVATE)
-                                                .edit()
-                                                .putInt(username+"_lastVersion", 1)
-                                                .commit();*/
-
                                         SheetUpdateService.startGetNewModel(appContext, modelName);
-                                        /*try {
-                                            File f = dm.getModel(appContext, modelName);
-                                            Log.e(FileListActivity.class.getName(),f.toString());
-                                        } catch (IllegalStateException e) {
-                                            String st = "";
-                                            for (StackTraceElement ste: e.getStackTrace()) {
-                                                st += "\n" + ste.toString();
-                                            }
-                                            Log.e(FileListActivity.class.getName(), st);
-                                            Snackbar.make(layout, "Le modèle n'existe pas.", Snackbar.LENGTH_LONG).show();
-                                        }*/
-
                                     }
                                 }
                             })
@@ -116,11 +104,8 @@ public class FileListActivity extends AppCompatActivity {
             AlertDialog alertDialog = alertDialogBuilder.create();
             alertDialog.show();
         });
-        ArrayList<ListModelItem> models = new ArrayList<>();
-        ListModelItem lmi = new ListModelItem("model");
-        lmi.setLastModif(new Date());
-        models.add(lmi);
-        CustomAdapter adapter = new CustomAdapter(getApplicationContext(), R.layout.file_model_list_element_layout, models);
+
+        adapter = new CustomAdapter(getApplicationContext(), R.layout.file_model_list_element_layout, models);
         ListView lv = (ListView) layout.findViewById(R.id.list_view_models);
         lv.setAdapter(adapter);
 
@@ -128,7 +113,7 @@ public class FileListActivity extends AppCompatActivity {
         * -----------------------------------
         * |                                 |
         * |    Following code only here     |
-        * |            for tests            |
+        * |    for tests of xml parser      |
         * |                                 |
         * -----------------------------------
         */
@@ -227,7 +212,7 @@ public class FileListActivity extends AppCompatActivity {
             TextView rb = (TextView) convertView.findViewById(R.id.model_last_version);
 
             tv.setText(l.getItemName());
-            rb.setText(l.getLastModif().toString());
+            //rb.setText(l.getVersion());
 
             return convertView;
         }

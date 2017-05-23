@@ -131,7 +131,7 @@ public class SheetUpdateService extends IntentService {
         } else {
             DataManager.createModel(getApplicationContext(), model, modelSchema);
 
-            intent.putExtra("model_name", model);
+            intent.putExtra("status", OPERATION_OK);
             broadcastManager.sendBroadcast(intent);
         }
     }

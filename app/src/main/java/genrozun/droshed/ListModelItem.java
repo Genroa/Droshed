@@ -9,18 +9,20 @@ import java.util.Objects;
 
 public class ListModelItem {
     private final String itemName;
-    private Date lastModif;
+    private int version;
 
-    public ListModelItem(String itemName) {
+    public ListModelItem(String itemName, int version) {
+
         this.itemName = itemName;
+        this.version = version;
     }
 
-    public void setLastModif(Date lastModif) {
-        this.lastModif = Objects.requireNonNull(lastModif);
+    public void setVersion(int version) {
+        this.version = Objects.requireNonNull(version);
     }
 
-    public Date getLastModif() {
-        return lastModif;
+    public int getVersion() {
+        return version;
     }
 
     public String getItemName() {
