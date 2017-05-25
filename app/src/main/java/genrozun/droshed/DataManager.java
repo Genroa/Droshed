@@ -21,9 +21,7 @@ public class DataManager {
      * @return the asked file
      */
     public static File getDataVersion(Context context, String model, int version) {
-        SharedPreferences logins = context.getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
-        String user = logins.getString("droshed_user", null);
-        if(user == null) throw new IllegalStateException("User can't be null");
+        String user = checkUser(context);
 
         File userDataFolder = new File(getModelDataFolder(context, model), user);
         if(!userDataFolder.exists()) if(!userDataFolder.mkdir()) throw new IllegalStateException("Couldn't create user data folder");
@@ -77,9 +75,7 @@ public class DataManager {
      * @return
      */
     public static int getLastVersionNumberForModel(Context context, String model) {
-        SharedPreferences logins = context.getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
-        String user = logins.getString("droshed_user", null);
-        if(user == null) throw new IllegalStateException("User can't be null");
+        String user = checkUser(context);
 
         SharedPreferences modelMetadata = context.getSharedPreferences("droshed_model_"+model, Context.MODE_PRIVATE);
         int lastVersion = modelMetadata.getInt(user+"_lastVersion", -1);
@@ -95,9 +91,7 @@ public class DataManager {
      * @param model the model name
      */
     private static void incrementLastVersionNumber(Context context, String model) {
-        SharedPreferences logins = context.getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
-        String user = logins.getString("droshed_user", null);
-        if(user == null) throw new IllegalStateException("User can't be null");
+        String user = checkUser(context);
 
         SharedPreferences modelMetadata = context.getSharedPreferences("droshed_model_"+model, Context.MODE_PRIVATE);
 
@@ -140,9 +134,7 @@ public class DataManager {
      */
     public static void createModel(Context context, String modelName, String modelContent) {
         File modelFile = new File(getModelsRootFolder(context), modelName);
-        SharedPreferences logins = context.getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
-        String user = logins.getString("droshed_user", null);
-        if(user == null) throw new IllegalStateException("User can't be null");
+        String user = checkUser(context);
 
         try {
             Log.i("DATAMANAGER", "Creating new model file: "+modelFile.getAbsolutePath());
@@ -171,9 +163,7 @@ public class DataManager {
      * @param newContent the new data content
      */
     public static void createNewVersion(Context context, String model, String newContent) {
-        SharedPreferences logins = context.getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
-        String user = logins.getString("droshed_user", null);
-        if(user == null) throw new IllegalStateException("User can't be null");
+        String user = checkUser(context);
 
         File userDataFolder = new File(getModelDataFolder(context, model), user);
         if(!userDataFolder.exists()) if(!userDataFolder.mkdir()) throw new IllegalStateException("Couldn't create user data folder");
@@ -189,5 +179,12 @@ public class DataManager {
         } catch (IOException e) {
             throw new IllegalStateException("Can't create new file to save the new version, or write data");
         }
+    }
+
+    private static String checkUser(Context context) {
+        SharedPreferences logins = context.getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
+        String user = logins.getString("droshed_user", null);
+        if(user == null) throw new IllegalStateException("User can't be null");
+        return user;
     }
 }

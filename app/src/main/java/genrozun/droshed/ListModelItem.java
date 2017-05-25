@@ -29,4 +29,8 @@ public class ListModelItem {
         return itemName;
     }
 
+    @Override
+    public String toString() {
+        return itemName+"/"+version;
+    }
 }

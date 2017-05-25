@@ -6,7 +6,13 @@ package genrozun.droshed;
 
 public class Model {
 
+    private Model() {
 
+    }
+
+    public static Model create(String modelName) {
+        return null;
+    }
 
     public int getColumnNumber() {
         return 8;

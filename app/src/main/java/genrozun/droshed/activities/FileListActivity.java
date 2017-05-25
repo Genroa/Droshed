@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -168,6 +169,17 @@ public class FileListActivity extends AppCompatActivity {
             Log.e(FileListActivity.class.getName(), e.toString());
         }*/
 
+
+        ListView modelList = (ListView) findViewById(R.id.list_view_models);
+        modelList.setOnItemClickListener((adapter, view, position, id) -> {
+            ListModelItem item = (ListModelItem) adapter.getItemAtPosition(position);
+            Log.i("MODELLIST", item.toString());
+
+            Intent intent = new Intent(getApplicationContext(), SheetEditActivity.class);
+            intent.putExtra("model_name", item.getItemName());
+
+            startActivity(intent);
+        });
     }
 
     @Override
