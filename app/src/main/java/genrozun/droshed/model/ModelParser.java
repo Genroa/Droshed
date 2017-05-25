@@ -1,4 +1,4 @@
-package genrozun.droshed;
+package genrozun.droshed.model;
 
 import android.util.Log;
 
@@ -6,12 +6,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * Created by axelheine on 04/05/2017.

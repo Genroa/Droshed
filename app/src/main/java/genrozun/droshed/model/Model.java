@@ -1,4 +1,4 @@
-package genrozun.droshed;
+package genrozun.droshed.model;
 
 /**
  * Created by axelheine on 08/05/2017.

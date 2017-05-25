@@ -1,18 +1,15 @@
 package genrozun.droshed;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
-import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+
+import genrozun.droshed.model.Model;
 
 /**
  * TODO: document your custom view class.
