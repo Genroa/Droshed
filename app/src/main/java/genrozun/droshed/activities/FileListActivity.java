@@ -17,21 +17,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Date;
 
-import genrozun.droshed.DataManager;
+import genrozun.droshed.sync.DataManager;
 import genrozun.droshed.ListModelItem;
 import genrozun.droshed.R;
-import genrozun.droshed.SheetUpdateService;
+import genrozun.droshed.sync.SheetUpdateService;
 
 public class FileListActivity extends AppCompatActivity {
     private String modelName;

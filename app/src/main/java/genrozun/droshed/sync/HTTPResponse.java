@@ -1,9 +1,6 @@
-package genrozun.droshed;
+package genrozun.droshed.sync;
 
 import java.net.HttpURLConnection;
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by genro on 23/05/2017.

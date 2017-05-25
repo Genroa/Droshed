@@ -1,4 +1,4 @@
-package genrozun.droshed;
+package genrozun.droshed.sync;
 
 import android.content.Context;
 import android.content.SharedPreferences;

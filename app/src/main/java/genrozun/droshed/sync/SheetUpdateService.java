@@ -1,4 +1,4 @@
-package genrozun.droshed;
+package genrozun.droshed.sync;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -168,6 +168,7 @@ public class SheetUpdateService extends IntentService {
             e.apply();
 
             Intent intent = new Intent("droshed-sync");
+            intent.putExtra("model_name", model);
             intent.putExtra("last_version", currentClientVersion);
             broadcastManager.sendBroadcast(intent);
 

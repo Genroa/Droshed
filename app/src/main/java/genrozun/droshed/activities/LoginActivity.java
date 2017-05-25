@@ -3,7 +3,6 @@ package genrozun.droshed.activities;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,20 +15,17 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 
 import genrozun.droshed.R;
-import genrozun.droshed.SheetUpdateService;
+import genrozun.droshed.sync.SheetUpdateService;
 
 /**
  * A login screen that offers login via email/password.

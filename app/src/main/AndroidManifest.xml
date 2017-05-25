@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".SheetUpdateService"
+            android:name=".sync.SheetUpdateService"
             android:exported="false" />
 
         <activity
