@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
@@ -23,7 +24,8 @@ public class SheetView extends View {
     private float zoomLevel = 1;
     private float viewPositionX = 0;
     private float viewPositionY = 0;
-    private ScaleGestureDetector gestureDetector;
+    private ScaleGestureDetector scaleGestureDetector;
+
 
 
     int contentWidth = getWidth() - paddingLeft - paddingRight;
@@ -51,6 +53,8 @@ public class SheetView extends View {
     }
 
     private void init(Context context) {
+        setOnTouchListener(new DragListener(this));
+        scaleGestureDetector = new ScaleGestureDetector(context, new SheetView.PinchListener(this));
         recomputeDimensions();
     }
 
@@ -154,5 +158,106 @@ public class SheetView extends View {
     public void setViewPositionY(float newY) {
         viewPositionY = Math.min(Math.max(0, newY), (((currentModel.getLineNumber()+1)*cellHeight*zoomLevel)-contentHeight));
         recomputeDimensions();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        scaleGestureDetector.onTouchEvent(event);
+        return true;
+    }
+
+    class DragListener implements View.OnTouchListener {
+        private SheetView sheetView;
+        private float initialX;
+        private float initialY;
+        private float diffX;
+        private float diffY;
+
+        public DragListener(SheetView sheetView) {
+            this.sheetView = sheetView;
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            float moveX = event.getRawX();
+            float moveY = event.getRawY();
+            int pointerCount;
+
+            switch(event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    initialX = moveX;
+                    initialY = moveY;
+                    diffX = sheetView.getViewPositionX();
+                    diffY = sheetView.getViewPositionY();
+                    if(event.getPointerCount() > 1) return false;
+                    break;
+
+                case MotionEvent.ACTION_MOVE:
+                    pointerCount = event.getPointerCount();
+                    if(pointerCount > 1) return false;
+
+                    moveX -= initialX;
+                    moveY -= initialY;
+
+                    Log.i("Touch", "X: "+moveX);
+                    Log.i("Touch", "Y: "+moveY);
+
+                    sheetView.setViewPositionX((diffX - moveX));
+                    sheetView.setViewPositionY((diffY - moveY));
+
+                    Log.i("Touch", "viewX: "+sheetView.getViewPositionX());
+                    Log.i("Touch", "viewY: "+sheetView.getViewPositionY());
+
+
+                    break;
+
+                case MotionEvent.ACTION_UP:
+                /*if(event.getPointerCount() == 1) {
+                    sheetView.setViewPositionX(initialX);
+                    sheetView.setViewPositionY(initialY);
+                }*/
+                    Log.i("Touch", "End");
+                    break;
+
+                default:
+                    break;
+            }
+
+            return true;
+        }
+    }
+
+    public static class PinchListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        private float currentScale;
+        private float initialScale;
+        private SheetView sheetView;
+
+        public PinchListener(SheetView sheetView) {
+            this.sheetView = sheetView;
+        }
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            initialScale = sheetView.getZoomLevel();
+            currentScale = detector.getScaleFactor();
+            return super.onScaleBegin(detector);
+        }
+
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+
+
+            currentScale = initialScale + (detector.getScaleFactor()-1);
+            Log.i("Scale", ""+currentScale);
+            sheetView.setZoomLevel((float) Math.min(Math.max(0.5, currentScale), 1.5));
+            sheetView.setViewPositionX(sheetView.getViewPositionX());
+            sheetView.setViewPositionY(sheetView.getViewPositionY());
+            return false;
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+            super.onScaleEnd(detector);
+        }
     }
 }

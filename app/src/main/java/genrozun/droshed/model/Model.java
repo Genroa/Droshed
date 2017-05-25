@@ -11,7 +11,7 @@ public class Model {
     }
 
     public static Model create(String modelName) {
-        return null;
+        return new Model();
     }
 
     public int getColumnNumber() {
