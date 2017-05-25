@@ -212,7 +212,8 @@ public class FileListActivity extends AppCompatActivity {
             TextView rb = (TextView) convertView.findViewById(R.id.model_last_version);
 
             tv.setText(l.getItemName());
-            //rb.setText(l.getVersion());
+            int version = l.getVersion();
+            rb.setText((version == 0 ? "Pas de données":"Version : " + version));
 
             return convertView;
         }
