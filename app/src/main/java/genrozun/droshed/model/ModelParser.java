@@ -7,6 +7,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by axelheine on 04/05/2017.
@@ -90,20 +91,29 @@ public class ModelParser {
                     name = parser.getName();
                     Log.e(ModelParser.class.getName(), name + " " + parser.getAttributeCount());
                     if(name.equalsIgnoreCase("column")) {
-                        switch (parser.getAttributeValue(null, "type")) {
+                        HashMap<String, String> parameters = new HashMap<>();
+                        for (int i = 0; i < parser.getAttributeCount(); i++) {
+                            String attributeName = parser.getAttributeName(i);
+                            if(!attributeName.equals("id") && !attributeName.equals("name") && !attributeName.equals("type")) {
+                                parameters.put(attributeName, parser.getAttributeValue(i));
+                            }
+                        }
+                        String type = parser.getAttributeValue(null, "type");
+
+                        switch(type) {
                             case "text":
-                                column = new TextColumn(parser.getAttributeValue(null, "id"));
+                                column = new TextColumn(parser.getAttributeValue(null, "id"), parser.getAttributeValue(null, "name"), parameters);
                                 break;
-                            case "value":
-                                column = new ValueColumn(parser.getAttributeValue(null, "id"));
+                            case "decimal":
+                                column = new DecimalColumn(parser.getAttributeValue(null, "id"), parser.getAttributeValue(null, "name"), parameters);
+                                break;
+                            case "integer":
+                                column = new IntegerColumn(parser.getAttributeValue(null, "id"), parser.getAttributeValue(null, "name"), parameters);
                                 break;
                         }
                     }
-
                     break;
                 case XmlPullParser.TEXT:
-                    //Log.e(ModelParser.class.getName(), parser.getText());
-                    //column.setName(parser.getText());
                     break;
                 case XmlPullParser.END_TAG:
                     if(parser.getName().equalsIgnoreCase("column"))
