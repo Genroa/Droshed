@@ -11,4 +11,5 @@ public interface Column<T> {
     String buildCellContent(int line);
     T getValue(int line);
     void setValue(int line, T newValue);
+    void setValueFromString(int line, String newValue);
 }

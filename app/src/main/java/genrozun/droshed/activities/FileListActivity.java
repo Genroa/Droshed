@@ -121,7 +121,7 @@ public class FileListActivity extends AppCompatActivity {
             Log.d(FileListActivity.class.getName(), map.get("id"));
             TextColumn tc = new TextColumn(map.get("id"));
             tc.setName(map.get("name"));
-            tc.setValue(map.get("value"));
+            tc.setValueFromString(map.get("value"));
             return tc;
         }*/
         /*columnTypes.put("text", new Function<HashMap<String, String>, Column>() {
@@ -136,7 +136,7 @@ public class FileListActivity extends AppCompatActivity {
             Log.d(FileListActivity.class.getName(), map.get("id"));
             ValueColumn vc = new ValueColumn(map.get("id"));
             vc.setName(map.get("name"));
-            vc.setValue(Double.parseDouble(map.get("value")));
+            vc.setValueFromString(Double.parseDouble(map.get("value")));
             vc.setMin(Double.parseDouble(map.get("min")));
             vc.setMax(Double.parseDouble(map.get("max")));
             return vc;

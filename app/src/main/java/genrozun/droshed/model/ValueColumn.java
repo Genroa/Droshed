@@ -48,6 +48,4 @@ abstract class ValueColumn<T> extends AbstractColumn<T> {
 
     public abstract T getAbsoluteMin();
     public abstract T getAbsoluteMax();
-
-    abstract T stringToValue(String representation);
 }

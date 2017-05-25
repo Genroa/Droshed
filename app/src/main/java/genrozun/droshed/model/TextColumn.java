@@ -11,4 +11,6 @@ public class TextColumn extends AbstractColumn<String> {
     public TextColumn(String id, String name, Map<String, String> parameters) {
         super(id, name);
     }
+
+
 }

@@ -18,6 +18,11 @@ public class DecimalColumn extends ValueColumn<Double> {
     }
 
     @Override
+    public void setValue(int line, Double newValue) {
+        super.setValue(line, Math.max(getMinValue(), Math.min(getMaxValue(), newValue)));
+    }
+
+    @Override
     public Double getAbsoluteMax() {
         return Double.MAX_VALUE;
     }

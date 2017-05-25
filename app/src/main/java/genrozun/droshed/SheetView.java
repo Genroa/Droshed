@@ -10,6 +10,8 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import java.util.Objects;
+
 import genrozun.droshed.model.Model;
 
 /**
@@ -65,7 +67,7 @@ public class SheetView extends View {
         cellWidth = (contentWidth / 4)* zoomLevel;
         cellHeight = (contentHeight / 9)* zoomLevel;
 
-        currentModel = Model.create("");
+        setModel(Model.create(""));
         invalidate();
         requestLayout();
     }
@@ -125,7 +127,7 @@ public class SheetView extends View {
     }
 
     public void setModel(Model model) {
-        currentModel = model;
+        currentModel = Objects.requireNonNull(model);
         invalidate();
         requestLayout();
     }

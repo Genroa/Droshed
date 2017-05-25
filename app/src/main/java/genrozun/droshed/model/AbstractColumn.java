@@ -44,4 +44,13 @@ public abstract class AbstractColumn<T> implements Column<T> {
     public void setValue(int line, T newValue) {
         values.add(line, newValue);
     }
+
+    @Override
+    public void setValueFromString(int line, String newValue) {
+        setValue(line, stringToValue(newValue));
+    }
+
+    T stringToValue(String representation) {
+        return (T) representation;
+    }
 }
