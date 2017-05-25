@@ -10,8 +10,16 @@ public class IntegerColumn extends ValueColumn<Integer> {
 
     public IntegerColumn(String id, String name, Map<String, String> parameters) {
         super(id, name, parameters);
-        setMinValue(Math.max(Integer.MIN_VALUE, getMinValue()));
-        setMaxValue(Math.min(Integer.MAX_VALUE, getMaxValue()));
+    }
+
+    @Override
+    public Integer getAbsoluteMin() {
+        return Integer.MIN_VALUE;
+    }
+
+    @Override
+    public Integer getAbsoluteMax() {
+        return Integer.MAX_VALUE;
     }
 
     @Override

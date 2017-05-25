@@ -10,11 +10,17 @@ public class DecimalColumn extends ValueColumn<Double> {
 
     public DecimalColumn(String id, String name, Map<String, String> parameters) {
         super(id, name, parameters);
-        setMinValue(Math.max(Double.MIN_VALUE, getMinValue()));
-        setMaxValue(Math.min(Double.MAX_VALUE, getMaxValue()));
     }
 
+    @Override
+    public Double getAbsoluteMin() {
+        return Double.MIN_VALUE;
+    }
 
+    @Override
+    public Double getAbsoluteMax() {
+        return Double.MAX_VALUE;
+    }
 
     @Override
     Double stringToValue(String representation) {

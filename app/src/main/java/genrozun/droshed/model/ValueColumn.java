@@ -8,9 +8,9 @@ import java.util.Map;
  * Created by genro on 25/05/2017.
  */
 
-abstract class ValueColumn<V> extends AbstractColumn<V> {
-    private V minValue;
-    private V maxValue;
+abstract class ValueColumn<T> extends AbstractColumn<T> {
+    private T minValue = getAbsoluteMin();
+    private T maxValue = getAbsoluteMax();
 
     public ValueColumn(String id, String name, Map<String, String> parameters) {
         super(id, name);
@@ -30,21 +30,24 @@ abstract class ValueColumn<V> extends AbstractColumn<V> {
     }
 
 
-    public V getMinValue() {
+    public T getMinValue() {
         return minValue;
     }
 
-    public V getMaxValue() {
+    public T getMaxValue() {
         return maxValue;
     }
 
-    public void setMinValue(V minValue) {
+    public void setMinValue(T minValue) {
         this.minValue = minValue;
     }
 
-    public void setMaxValue(V maxValue) {
+    public void setMaxValue(T maxValue) {
         this.maxValue = maxValue;
     }
 
-    abstract V stringToValue(String representation);
+    public abstract T getAbsoluteMin();
+    public abstract T getAbsoluteMax();
+
+    abstract T stringToValue(String representation);
 }
