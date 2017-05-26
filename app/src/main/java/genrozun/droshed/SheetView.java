@@ -67,7 +67,7 @@ public class SheetView extends View {
         cellWidth = (contentWidth / 4)* zoomLevel;
         cellHeight = (contentHeight / 9)* zoomLevel;
 
-        setModel(Model.create(""));
+        //setModel(Model.create(""));
         invalidate();
         requestLayout();
     }

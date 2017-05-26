@@ -1,4 +1,10 @@
 <model>
-	<column type="text" id="col1">Colonne 1</column>
-	<column type="value" min="0" max="20" id="col2">Colonne 2</column>
+	<header>
+		<column type="text" id="col1">Colonne 1</column>
+		<column type="value" min="0" max="20" id="col2">Colonne 2</column>
+	</header>
+	<content>
+		<line id="cont1">Baptiste Blanchard</line>
+		<line id="cont2">Axel Heine</line>
+	</content>
 </model>
