@@ -24,48 +24,19 @@ public class Model {
     private ArrayList<Column> columns;
     private ArrayList<Line> lines;
 
-    private Model() {
-        this.columns = new ArrayList<>();
-        this.lines = new ArrayList<>();
+    public Model(ArrayList<Column> columns, ArrayList<Line> lines) {
+        this.columns = columns;
+        this.lines = lines;
     }
 
-    public static Model create(String modelName, Context c) {
-        XmlPullParser parser = Xml.newPullParser();
+    public Model createModelFromModelFile(String model, Context context) {
         ModelParser mp = new ModelParser();
-        Model model = new Model();
-        try {
-            InputStream in_s = new FileInputStream(DataManager.getModel(c, modelName)); //TODO: load model file from path
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(in_s, null);
-            mp.parseModel(parser, model);
-        } catch (IOException e) {
-            //TODO gestion des exceptions
-            Log.e(ModelParser.class.getName(), e.toString());
-        } catch (XmlPullParserException e) {
-            Log.e(ModelParser.class.getName(), e.toString());
-        }
-
-        return model;
-    }
-
-    public void populateModel(Context c, String dataFileName) {
-        XmlPullParser parser = Xml.newPullParser();
-        Model model = new Model();
-        try {
-            InputStream in_s = new FileInputStream(DataManager.getLastVersionData(c, dataFileName)); //TODO: load model file from path
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(in_s, null);
-            model.parseDataFile(parser);
-        } catch (IOException e) {
-            //TODO gestion des exceptions
-            Log.e(ModelParser.class.getName(), e.toString());
-        } catch (XmlPullParserException e) {
-            Log.e(ModelParser.class.getName(), e.toString());
-        }
+        return mp.parseModel(model, context);
     }
 
     private void parseDataFile(XmlPullParser parser) throws XmlPullParserException {
         int eventType = parser.getEventType();
+        String currentParent = "";
         while (eventType != XmlPullParser.END_DOCUMENT) {
             switch(eventType) {
                 case XmlPullParser.START_DOCUMENT:
@@ -74,6 +45,7 @@ public class Model {
                     String tagName = parser.getName();
                     switch (tagName) {
                         case "line":
+                            currentParent = "line";
 
                             break;
                     }
