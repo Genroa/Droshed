@@ -23,35 +23,19 @@ import genrozun.droshed.sync.DataManager;
 public class Model {
     private ArrayList<Column> columns;
     private ArrayList<Line> lines;
+    private String modelName;
 
-    public Model(ArrayList<Column> columns, ArrayList<Line> lines) {
+    public Model(String modelName, ArrayList<Column> columns, ArrayList<Line> lines) {
+        this.modelName = modelName;
         this.columns = columns;
         this.lines = lines;
     }
 
-    public Model createModelFromModelFile(String model, Context context) {
+    public static Model createModelFromModelFile(String model, Context context) {
         ModelParser mp = new ModelParser();
-        return mp.parseModel(model, context);
-    }
-
-    private void parseDataFile(XmlPullParser parser) throws XmlPullParserException {
-        int eventType = parser.getEventType();
-        String currentParent = "";
-        while (eventType != XmlPullParser.END_DOCUMENT) {
-            switch(eventType) {
-                case XmlPullParser.START_DOCUMENT:
-                    break;
-                case XmlPullParser.START_TAG:
-                    String tagName = parser.getName();
-                    switch (tagName) {
-                        case "line":
-                            currentParent = "line";
-
-                            break;
-                    }
-                    break;
-            }
-        }
+        Model m =  mp.parseModel(model, context);
+        DataParser dp = new DataParser(m);
+        return m;
     }
 
     public void addLine(String id, String name) {
@@ -62,8 +46,16 @@ public class Model {
         columns.add(column);
     }
 
+    public Column getColumn(int columnIndex) {
+        return columns.get(columnIndex);
+    }
+
     public int getColumnNumber() {
         return columns.size();
+    }
+
+    public String getModelName() {
+        return modelName;
     }
 
     public int getLineNumber() {
@@ -75,11 +67,15 @@ public class Model {
         StringBuilder sb = new StringBuilder();
         sb.append("Columns : \n");
         for (Column c: columns) {
+            sb.append("getColumn  : ");
             sb.append(c.getInputType());
+            sb.append("\n");
         }
-        sb.append("\nLines : \n");
+        sb.append("\nLines").append(lines.size()).append(" : \n");
         for (Line l: lines) {
+            sb.append("getLine  : ");
             sb.append(l.getName());
+            sb.append("\n");
         }
         return sb.toString();
     }

@@ -29,8 +29,6 @@ public class ModelParser {
         this.lines = new ArrayList<>();
     }
 
-
-
     public Model parseModel(String modelName, Context context) {
         XmlPullParser parser = Xml.newPullParser();
         try {
@@ -44,8 +42,8 @@ public class ModelParser {
         } catch (XmlPullParserException e) {
             Log.e(ModelParser.class.getName(), e.toString());
         }
-
-        return new Model(columns, lines);
+        Log.e(ModelParser.class.getName(), "Lines : " + lines.size());
+        return new Model(modelName, columns, lines);
     }
 
     /**
@@ -91,6 +89,7 @@ public class ModelParser {
                     break;
                 case XmlPullParser.END_TAG:
                     if(parser.getName().equalsIgnoreCase("column")) {
+                        Log.e(ModelParser.class.getName(), "new column : ");
                         switch(columnType) {
                             case "text":
                                 column = new TextColumn(columnId, text, parameters);
@@ -105,8 +104,10 @@ public class ModelParser {
                         columns.add(column);
                         parameters.clear();
                     }
-                    if(parser.getName().equalsIgnoreCase("line"))
+                    if(parser.getName().equalsIgnoreCase("line")) {
+                        Log.e(ModelParser.class.getName(), "new Line : " + lineId + " " + text);
                         lines.add(new Line(lineId, text));
+                    }
                     break;
                 default:
                     Log.e(ModelParser.class.getName(), "default");

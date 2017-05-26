@@ -19,6 +19,6 @@ public class SheetEditActivity extends AppCompatActivity {
 
         SheetView sheetView = (SheetView) findViewById(R.id.grid);
         Intent intent = getIntent();
-        sheetView.setModel(Model.create(intent.getStringExtra("model_name"), getApplicationContext()));
+        sheetView.setModel(Model.createModelFromModelFile(intent.getStringExtra("model_name"), getApplicationContext()));
     }
 }
