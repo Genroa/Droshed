@@ -31,12 +31,13 @@ public class Model {
 
     public static Model create(String modelName, Context c) {
         XmlPullParser parser = Xml.newPullParser();
+        ModelParser mp = new ModelParser();
         Model model = new Model();
         try {
             InputStream in_s = new FileInputStream(DataManager.getModel(c, modelName)); //TODO: load model file from path
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in_s, null);
-            model.parse(parser);
+            mp.parseModel(parser, model);
         } catch (IOException e) {
             //TODO gestion des exceptions
             Log.e(ModelParser.class.getName(), e.toString());
@@ -47,75 +48,37 @@ public class Model {
         return model;
     }
 
-    /**
-     * Method used to parse XML Model file as defined by the server
-     * @param parser
-     * @return Created Model
-     * @throws XmlPullParserException
-     * @throws IOException
-     */
-    private void parse(XmlPullParser parser) throws XmlPullParserException, IOException {
+    public void populateModel(Context c, String dataFileName) {
+        XmlPullParser parser = Xml.newPullParser();
+        Model model = new Model();
+        try {
+            InputStream in_s = new FileInputStream(DataManager.getLastVersionData(c, dataFileName)); //TODO: load model file from path
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            parser.setInput(in_s, null);
+            model.parseDataFile(parser);
+        } catch (IOException e) {
+            //TODO gestion des exceptions
+            Log.e(ModelParser.class.getName(), e.toString());
+        } catch (XmlPullParserException e) {
+            Log.e(ModelParser.class.getName(), e.toString());
+        }
+    }
+
+    private void parseDataFile(XmlPullParser parser) throws XmlPullParserException {
         int eventType = parser.getEventType();
-        String lastTagName = "";
-        String columnType = "";
-        String columnId = "";
-        HashMap<String, String> parameters = new HashMap<>();
-        Column column = null;
-        String lineId = "";
-        String text = "";
         while (eventType != XmlPullParser.END_DOCUMENT) {
-            String name;
             switch(eventType) {
                 case XmlPullParser.START_DOCUMENT:
-                    columns = new ArrayList();
                     break;
                 case XmlPullParser.START_TAG:
-                    lastTagName = parser.getName();
-                    Log.i(ModelParser.class.getName(), lastTagName + " " + parser.getAttributeCount());
-                    if(lastTagName.equalsIgnoreCase("column")) {
-                        for (int i = 0; i < parser.getAttributeCount(); i++) {
-                            String attributeName = parser.getAttributeName(i);
-                            if(!attributeName.equals("id") && !attributeName.equals("type")) {
-                                parameters.put(attributeName, parser.getAttributeValue(i));
-                            }
-                        }
-                        columnType = parser.getAttributeValue(null, "type");
-                        columnId = parser.getAttributeValue(null, "id");
-                        Log.i(Model.class.getName(), "Text in switch : " + parser.getText());
+                    String tagName = parser.getName();
+                    switch (tagName) {
+                        case "line":
 
-                    }
-
-                    if(lastTagName.equalsIgnoreCase("line")) {
-                        lineId = parser.getAttributeValue(null, "id");
+                            break;
                     }
                     break;
-                case XmlPullParser.TEXT:
-                    //Log.i(Model.class.getName(), "Text : " + parser.getText());
-                    text = parser.getText();
-                    break;
-                case XmlPullParser.END_TAG:
-                    if(parser.getName().equalsIgnoreCase("column")) {
-                        switch(columnType) {
-                            case "text":
-                                column = new TextColumn(columnId, text, parameters);
-                                break;
-                            case "decimal":
-                                column = new DecimalColumn(columnId, text, parameters);
-                                break;
-                            case "integer":
-                                column = new IntegerColumn(columnId, text, parameters);
-                                break;
-                        }
-                        addColumn(column);
-                        parameters.clear();
-                    }
-                    if(parser.getName().equalsIgnoreCase("line"))
-                        addLine(lineId, text);
-                    break;
-                default:
-                    Log.e(ModelParser.class.getName(), "default");
             }
-            eventType = parser.next();
         }
     }
 
