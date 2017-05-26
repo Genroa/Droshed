@@ -56,7 +56,7 @@ def checkauth():
 	return "OK", 200
 
 
-@app.route("/<sheetname>/model")
+@app.route("/<sheetname>/model", methods=["GET"])
 @authenticated
 def getmodel(sheetname):
 	if sheetname.startswith("."): # to protect the password file
@@ -64,6 +64,18 @@ def getmodel(sheetname):
 	try:
 		with open(os.path.join(app.config["modeldir"], sheetname)) as f:
 			return make_response(f.read())
+	except FileNotFoundError:
+		return "not found", 404
+
+@app.route("/<sheetname>/model", methods=["PUT"])
+@authenticated
+def putmodel(sheetname):
+	if sheetname.startswith("."): # to protect the password file
+		return "not found", 404
+	try:
+		with open(os.path.join(app.config["modeldir"], sheetname)) as f:
+			f.write(request.data)
+		return "updated", 200
 	except FileNotFoundError:
 		return "not found", 404
 		
@@ -105,6 +117,7 @@ def putversion(sheetname, version):
 		with open(filepath, "wb") as f:
 			f.write(request.data)
 		return "registered", 200
+
 
 if __name__ == "__main__":
 	try:
