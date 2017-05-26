@@ -56,7 +56,7 @@ public class SheetView extends View {
 
     private void init(Context context) {
         setOnTouchListener(new DragListener(this));
-        scaleGestureDetector = new ScaleGestureDetector(context, new SheetView.PinchListener(this));
+        //scaleGestureDetector = new ScaleGestureDetector(context, new SheetView.PinchListener(this));
         recomputeDimensions();
     }
 
