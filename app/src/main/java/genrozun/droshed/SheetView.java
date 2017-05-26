@@ -91,7 +91,7 @@ public class SheetView extends View {
         p.setColor(Color.parseColor("#c5c5c5"));
         canvas.drawRect(paddingLeft - (viewPositionX * zoomLevel),
                         paddingTop - (viewPositionY * zoomLevel),
-                        paddingLeft+(cellWidth*currentModel.getColumnNumber()*zoomLevel) - (viewPositionX * zoomLevel),
+                        paddingLeft+(cellWidth*(currentModel.getColumnNumber()+1)*zoomLevel) - (viewPositionX * zoomLevel),
                         paddingTop+cellHeight*zoomLevel - (viewPositionY * zoomLevel),
                         p);
 
@@ -99,7 +99,7 @@ public class SheetView extends View {
         canvas.drawRect(paddingLeft - (viewPositionX * zoomLevel),
                 paddingTop - (viewPositionY * zoomLevel),
                 paddingLeft+(cellWidth*zoomLevel) - (viewPositionX * zoomLevel),
-                paddingTop+(cellHeight*currentModel.getLineNumber()*zoomLevel) - (viewPositionY * zoomLevel),
+                paddingTop+(cellHeight*(currentModel.getLineNumber()+1)*zoomLevel) - (viewPositionY * zoomLevel),
                 p);
 
         // GRID

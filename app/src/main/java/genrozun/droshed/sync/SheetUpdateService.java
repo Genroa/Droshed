@@ -43,7 +43,7 @@ public class SheetUpdateService extends IntentService {
     public static final String OPERATION_ERROR = "genrozun.droshed.auth.OPERATION_ERROR";
 
     private LocalBroadcastManager broadcastManager;
-    private static String CURRENT_SERVER_IP = "http://192.168.1.77:7777";
+    private static String CURRENT_SERVER_IP = "http://192.168.1.24:7777";
 
     public SheetUpdateService() {
         super("SheetUpdateService");
@@ -278,7 +278,7 @@ public class SheetUpdateService extends IntentService {
                 byte[] tmp = new byte[Integer.valueOf(urlConnection.getHeaderField("Content-Length"))];
                 in.read(tmp);
                 ByteBuffer wrapped = ByteBuffer.wrap(tmp);
-                String body = Charset.forName(urlConnection.getContentType()).decode(wrapped).toString();
+                String body = Charset.forName("UTF-8").decode(wrapped).toString();
 
                 Log.i("SERVICE", "Data: "+body);
                 return new HTTPResponse(urlConnection, body);

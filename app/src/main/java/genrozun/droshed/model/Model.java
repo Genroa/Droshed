@@ -95,7 +95,7 @@ public class Model {
     }
 
     public int getLineNumber() {
-        return 15;
+        return lines.size();
     }
 
     @Override
