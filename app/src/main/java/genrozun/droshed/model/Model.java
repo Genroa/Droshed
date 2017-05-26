@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import genrozun.droshed.R;
 import genrozun.droshed.sync.DataManager;
@@ -60,6 +61,10 @@ public class Model {
 
     public int getLineNumber() {
         return lines.size();
+    }
+
+    public List<Column> getColumns() {
+        return columns;
     }
 
     @Override

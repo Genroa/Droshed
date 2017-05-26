@@ -11,4 +11,7 @@ public interface Column<T> {
     T getValue(String lineID);
     void setValue(String lineID, T newValue);
     void setValueFromString(String lineID, String newValue);
+    String getID();
+    String getName();
+    void setName(String newName);
 }

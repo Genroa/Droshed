@@ -10,8 +10,10 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import java.util.List;
 import java.util.Objects;
 
+import genrozun.droshed.model.Column;
 import genrozun.droshed.model.Model;
 
 /**
@@ -56,7 +58,7 @@ public class SheetView extends View {
 
     private void init(Context context) {
         setOnTouchListener(new DragListener(this));
-        //scaleGestureDetector = new ScaleGestureDetector(context, new SheetView.PinchListener(this));
+        scaleGestureDetector = new ScaleGestureDetector(context, new SheetView.PinchListener(this));
         recomputeDimensions();
     }
 
@@ -122,6 +124,27 @@ public class SheetView extends View {
                             paddingTop+(cellHeight*(currentModel.getLineNumber()+1)*zoomLevel)- (viewPositionY * zoomLevel),
                             p);
         }
+
+        p.setColor(Color.BLACK);
+        p.setTextSize(30);
+        p.setStyle(Paint.Style.FILL);
+
+        int i=1;
+        for(Column column : currentModel.getColumns()) {
+            Log.i("DRAW", "Columns: "+currentModel.getColumns());
+            canvas.drawText(limitLength(column.getName(), 14),
+                    (paddingLeft-viewPositionX*zoomLevel)+cellWidth*i,
+                    paddingTop+15+cellHeight/2-viewPositionY*zoomLevel,
+                    p);
+            i++;
+        }
+
+    }
+
+    private String limitLength(String content, int maxLength) {
+        if(content.length() <= maxLength) return content;
+
+        return content.substring(0, maxLength-3)+ "...";
     }
 
     @Override
@@ -160,18 +183,18 @@ public class SheetView extends View {
     }
 
     public void setViewPositionX(float newX) {
-        viewPositionX = Math.min(Math.max(0, newX*zoomLevel), ((currentModel.getColumnNumber()*cellWidth*zoomLevel)-contentWidth));
+        viewPositionX = Math.max(0, newX);//, ((currentModel.getColumnNumber()*cellWidth*zoomLevel)-contentWidth));
         recomputeDimensions();
     }
 
     public void setViewPositionY(float newY) {
-        viewPositionY = Math.min(Math.max(0, newY), (((currentModel.getLineNumber()+1)*cellHeight*zoomLevel)-contentHeight));
+        viewPositionY = Math.max(0, newY);//, (((currentModel.getLineNumber()+1)*cellHeight*zoomLevel)-contentHeight));
         recomputeDimensions();
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        scaleGestureDetector.onTouchEvent(event);
+        //scaleGestureDetector.onTouchEvent(event);
         return true;
     }
 

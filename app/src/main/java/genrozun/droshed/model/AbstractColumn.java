@@ -12,8 +12,12 @@ import java.util.Map;
 
 public abstract class AbstractColumn<T> implements Column<T> {
     private final Map<String, T> values;
+    private final String id;
+    private String name;
 
     public AbstractColumn(String id, String name) {
+        this.id = id;
+        this.name = name;
         values = new HashMap<String, T>();
     }
 
@@ -49,5 +53,20 @@ public abstract class AbstractColumn<T> implements Column<T> {
 
     T stringToValue(String representation) {
         return (T) representation;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String newName) {
+        name = newName;
+    }
+
+    @Override
+    public String getID() {
+        return id;
     }
 }
