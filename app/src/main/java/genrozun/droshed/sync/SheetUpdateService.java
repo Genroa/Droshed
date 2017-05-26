@@ -9,6 +9,11 @@ import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -25,7 +30,8 @@ import java.nio.charset.Charset;
 public class SheetUpdateService extends IntentService {
     private static final String ACTION_CHECK_AUTH = "genrozun.droshed.action.CHECK_AUTH";
     private static final String ACTION_RECEIVE_UPDATE = "genrozun.droshed.action.RECEIVE_UPDATE";
-    private static final String ACTION_SEND_UPDATE = "genrozun.droshed.action.SEND_UPDATE";
+    private static final String ACTION_SEND_DATA_UPDATE = "genrozun.droshed.action.SEND_DATA_UPDATE";
+    private static final String ACTION_SEND_MODEL_UPDATE = "genrozun.droshed.action.SEND_MODEL_UPDATE";
     private static final String ACTION_GET_NEW_MODEL = "genrozun.droshed.action.GET_NEW_MODEL";
 
 
@@ -62,11 +68,21 @@ public class SheetUpdateService extends IntentService {
      *
      * @see IntentService
      */
-    public static void startSendUpdate(Context context) {
+    public static void startSendDataUpdate(Context context, String modelName, int versionToSend) {
         Intent intent = new Intent(context, SheetUpdateService.class);
-        intent.setAction(ACTION_SEND_UPDATE);
+        intent.setAction(ACTION_SEND_DATA_UPDATE);
+        intent.putExtra(MODEL_NAME, modelName);
+        intent.putExtra(CURRENT_CLIENT_VERSION, versionToSend);
         context.startService(intent);
     }
+
+    public static void startSendModelUpdate(Context context, String modelName) {
+        Intent intent = new Intent(context, SheetUpdateService.class);
+        intent.setAction(ACTION_SEND_MODEL_UPDATE);
+        intent.putExtra(MODEL_NAME, modelName);
+        context.startService(intent);
+    }
+
 
     public static void startCheckAuth(Context context) {
         Log.i("SERVICE", "CheckAuth task");
@@ -89,22 +105,27 @@ public class SheetUpdateService extends IntentService {
         if (intent != null) {
             broadcastManager = LocalBroadcastManager.getInstance(this);
             final String action = intent.getAction();
+            final String modelName = intent.getStringExtra(MODEL_NAME);
+            final int version = intent.getIntExtra(CURRENT_CLIENT_VERSION, -1);
+
             switch(action) {
                 case ACTION_CHECK_AUTH:
                     handleActionCheckAuth();
                     break;
 
                 case ACTION_RECEIVE_UPDATE:
-                    final String model = intent.getStringExtra(MODEL_NAME);
-                    handleActionReceiveUpdate(model);
+                    handleActionReceiveUpdate(modelName);
                     break;
 
-                case ACTION_SEND_UPDATE:
-                    handleActionSendUpdate();
+                case ACTION_SEND_DATA_UPDATE:
+                    handleActionSendDataUpdate(modelName, version);
+                    break;
+
+                case ACTION_SEND_MODEL_UPDATE:
+                    handleActionSendModelUpdate(modelName);
                     break;
                 
                 case ACTION_GET_NEW_MODEL:
-                    final String modelName = intent.getStringExtra(MODEL_NAME);
                     handleActionGetNewModel(modelName);
                     break;
             }
@@ -277,9 +298,14 @@ public class SheetUpdateService extends IntentService {
      * Handle action Baz in the provided background thread with the provided
      * parameters.
      */
-    private void handleActionSendUpdate() {
-        // TODO: Handle action Baz
-        throw new UnsupportedOperationException("Not yet implemented");
+    private void handleActionSendDataUpdate(String model, int version) {
+        String fileContent = DataManager.getContentFromFile(DataManager.getDataVersion(getApplicationContext(), model, version));
+        sendPutQuery("/"+model+"/data/"+version, fileContent);
+    }
+
+    private void handleActionSendModelUpdate(String model) {
+        String fileContent = DataManager.getContentFromFile(DataManager.getModel(getApplicationContext(), model));
+        sendPutQuery("/"+model+"/model", fileContent);
     }
 
     private void handleActionCheckAuth() {
