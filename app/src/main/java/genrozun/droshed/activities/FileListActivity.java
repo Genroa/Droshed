@@ -186,8 +186,8 @@ public class FileListActivity extends AppCompatActivity {
             Log.e(FileListActivity.class.getName(), e.toString());
         }*/
 
-        Model m = Model.createModelFromModelFile("model1", getApplicationContext());
-        Log.i(FileListActivity.class.getName(), m.toString());
+        /*Model m = Model.createModelFromModelFile("model1", getApplicationContext());
+        Log.i(FileListActivity.class.getName(), m.toString());*/
 
 
         ListView modelList = (ListView) findViewById(R.id.list_view_models);
