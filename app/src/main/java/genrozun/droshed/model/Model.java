@@ -50,24 +50,19 @@ public class Model {
     /**
      * Method used to parse XML Model file as defined by the server
      * @param parser
-     *          Example of use :
-     *              XmlPullParser parser = pullParserFactory.newPullParser();
-    InputStream in_s = getApplicationContext().getAssets().open("sample.xml");
-    parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-    parser.setInput(in_s, null);
-    parse(parser);
      * @return Created Model
      * @throws XmlPullParserException
      * @throws IOException
      */
-    public void parse(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private void parse(XmlPullParser parser) throws XmlPullParserException, IOException {
         int eventType = parser.getEventType();
         String lastTagName = "";
         String columnType = "";
+        String columnId = "";
         HashMap<String, String> parameters = new HashMap<>();
         Column column = null;
-        String lineId = null;
-        String text = null;
+        String lineId = "";
+        String text = "";
         while (eventType != XmlPullParser.END_DOCUMENT) {
             String name;
             switch(eventType) {
@@ -80,18 +75,18 @@ public class Model {
                     if(lastTagName.equalsIgnoreCase("column")) {
                         for (int i = 0; i < parser.getAttributeCount(); i++) {
                             String attributeName = parser.getAttributeName(i);
-                            if(!attributeName.equals("id") && !attributeName.equals("name") && !attributeName.equals("type")) {
+                            if(!attributeName.equals("id") && !attributeName.equals("type")) {
                                 parameters.put(attributeName, parser.getAttributeValue(i));
                             }
                         }
                         columnType = parser.getAttributeValue(null, "type");
+                        columnId = parser.getAttributeValue(null, "id");
                         Log.i(Model.class.getName(), "Text in switch : " + parser.getText());
 
                     }
 
                     if(lastTagName.equalsIgnoreCase("line")) {
                         lineId = parser.getAttributeValue(null, "id");
-                        //this.addLine(, parser.getText());
                     }
                     break;
                 case XmlPullParser.TEXT:
@@ -102,13 +97,13 @@ public class Model {
                     if(parser.getName().equalsIgnoreCase("column")) {
                         switch(columnType) {
                             case "text":
-                                column = new TextColumn(parser.getAttributeValue(null, "id"), text, parameters);
+                                column = new TextColumn(columnId, text, parameters);
                                 break;
                             case "decimal":
-                                column = new DecimalColumn(parser.getAttributeValue(null, "id"), text, parameters);
+                                column = new DecimalColumn(columnId, text, parameters);
                                 break;
                             case "integer":
-                                column = new IntegerColumn(parser.getAttributeValue(null, "id"), text, parameters);
+                                column = new IntegerColumn(columnId, text, parameters);
                                 break;
                         }
                         addColumn(column);
