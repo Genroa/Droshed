@@ -95,6 +95,13 @@ public class SheetView extends View {
                         paddingTop+cellHeight*zoomLevel - (viewPositionY * zoomLevel),
                         p);
 
+        // FIRST COLUMN
+        canvas.drawRect(paddingLeft - (viewPositionX * zoomLevel),
+                paddingTop - (viewPositionY * zoomLevel),
+                paddingLeft+(cellWidth*zoomLevel) - (viewPositionX * zoomLevel),
+                paddingTop+(cellHeight*currentModel.getLineNumber()*zoomLevel) - (viewPositionY * zoomLevel),
+                p);
+
         // GRID
         p.setColor(Color.parseColor("#a1a1a1"));
         p.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -102,12 +109,12 @@ public class SheetView extends View {
             float linePosY = paddingTop + line*cellHeight*zoomLevel - (viewPositionY * zoomLevel);
             canvas.drawLine(paddingLeft - (viewPositionX * zoomLevel),
                             linePosY,
-                            paddingLeft+(cellWidth*currentModel.getColumnNumber()*zoomLevel)- (viewPositionX * zoomLevel),
+                            paddingLeft+(cellWidth*(currentModel.getColumnNumber()+1)*zoomLevel)- (viewPositionX * zoomLevel),
                             linePosY,
                             p);
         }
 
-        for(int column = 0; column < currentModel.getColumnNumber()+1; column ++) {
+        for(int column = 0; column < currentModel.getColumnNumber()+1+1; column ++) {
             float columnPosX = paddingLeft + column*cellWidth*zoomLevel - (viewPositionX * zoomLevel);
             canvas.drawLine(columnPosX,
                             paddingTop - (viewPositionY * zoomLevel),
