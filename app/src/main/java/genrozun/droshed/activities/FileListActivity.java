@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import genrozun.droshed.model.Model;
 import genrozun.droshed.sync.DataManager;
 import genrozun.droshed.ListModelItem;
 import genrozun.droshed.R;
@@ -37,10 +38,12 @@ public class FileListActivity extends AppCompatActivity {
     ArrayList<ListModelItem> models = new ArrayList<>();
     CustomAdapter adapter;
 
-    private BroadcastReceiver receiver;
+    private BroadcastReceiver newModelReceiver;
+    private BroadcastReceiver updateModelReceiver;
 
     public FileListActivity() {
-        receiver = new BroadcastReceiver() {
+        // New model receiver
+        newModelReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String result = intent.getStringExtra("status");
@@ -55,13 +58,30 @@ public class FileListActivity extends AppCompatActivity {
                 }
             }
         };
+
+        //Update model receiver
+        updateModelReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String modelName = intent.getStringExtra("model_name");
+                int modelVersion = intent.getIntExtra("model_version", 0);
+                for (ListModelItem item: models) {
+                    if (item.getItemName().equals(modelName)) {
+                        item.setVersion(modelVersion);
+                        adapter.notifyDataSetChanged();
+                        break;
+                    }
+                }
+            }
+        };
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_list);
-        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter("droshed-new-model"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(newModelReceiver, new IntentFilter("droshed-new-model"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(updateModelReceiver, new IntentFilter("droshed-sync"));
         this.appContext = getApplicationContext();
 
         layout = (RelativeLayout) findViewById(R.id.activity_file_list);
@@ -165,6 +185,9 @@ public class FileListActivity extends AppCompatActivity {
         } catch (XmlPullParserException e) {
             Log.e(FileListActivity.class.getName(), e.toString());
         }*/
+
+        Model m = Model.create("toto", getApplicationContext());
+        Log.i(FileListActivity.class.getName(), m.toString());
 
 
         ListView modelList = (ListView) findViewById(R.id.list_view_models);
