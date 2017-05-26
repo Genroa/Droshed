@@ -8,6 +8,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -211,7 +212,15 @@ public class SheetUpdateService extends IntentService {
         return null;
     }
 
+    private static HTTPResponse sendPutQuery(String urlPath, String content) {
+        return sendQuery(urlPath, "PUT", false, content);
+    }
+
     private static HTTPResponse sendGetQuery(String urlPath) {
+        return sendQuery(urlPath, "GET", true, null);
+    }
+
+    private static HTTPResponse sendQuery(String urlPath, String method, boolean expectInput, String content) {
         URL url = null;
         try {
             url = new URL(urlPath);
@@ -222,21 +231,37 @@ public class SheetUpdateService extends IntentService {
         HttpURLConnection urlConnection = null;
         try {
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setDoInput(true);
+
             urlConnection.setUseCaches(false);
-            BufferedInputStream in = new BufferedInputStream(urlConnection.getInputStream());
+            urlConnection.setRequestMethod(method);
+            urlConnection.setDoInput(expectInput);
+
+            if(content != null) {
+                ByteBuffer requestBody = Charset.forName("UTF-8").encode(content);
+                urlConnection.setDoOutput(true);
+                urlConnection.setRequestProperty("Content-Length", ""+requestBody.capacity());
+                urlConnection.setRequestProperty("Content-Type", "text/html; charset=utf-8");
+
+
+                BufferedOutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
+                out.write(requestBody.array());
+            }
+
             // Read answer
             Log.i("SERVICE", urlConnection.getResponseMessage());
             Log.i("SERVICE", "Length: "+urlConnection.getHeaderField("Content-Length"));
             Log.i("SERVICE", urlConnection.toString());
-            byte[] tmp = new byte[Integer.valueOf(urlConnection.getHeaderField("Content-Length"))];
-            in.read(tmp);
-            ByteBuffer wrapped = ByteBuffer.wrap(tmp);
-            String body = Charset.forName("UTF-8").decode(wrapped).toString();
 
-            Log.i("SERVICE", "Data: "+body);
-            return new HTTPResponse(urlConnection, body);
+            if(expectInput) {
+                BufferedInputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                byte[] tmp = new byte[Integer.valueOf(urlConnection.getHeaderField("Content-Length"))];
+                in.read(tmp);
+                ByteBuffer wrapped = ByteBuffer.wrap(tmp);
+                String body = Charset.forName(urlConnection.getContentType()).decode(wrapped).toString();
 
+                Log.i("SERVICE", "Data: "+body);
+                return new HTTPResponse(urlConnection, body);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
