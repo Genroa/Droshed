@@ -1,5 +1,7 @@
 package genrozun.droshed.model;
 
+import android.text.InputType;
+
 import java.util.Map;
 
 /**
@@ -13,6 +15,11 @@ public class IntegerColumn extends ValueColumn<Integer> {
     }
 
     @Override
+    public int getInputType() {
+        return InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED;
+    }
+
+    @Override
     public Integer getAbsoluteMin() {
         return Integer.MIN_VALUE;
     }
@@ -23,8 +30,8 @@ public class IntegerColumn extends ValueColumn<Integer> {
     }
 
     @Override
-    public void setValue(int line, Integer newValue) {
-        super.setValue(line, Math.max(getMinValue(), Math.min(getMaxValue(), newValue)));
+    public void setValue(String lineID, Integer newValue) {
+        super.setValue(lineID, Math.max(getMinValue(), Math.min(getMaxValue(), newValue)));
     }
 
     @Override

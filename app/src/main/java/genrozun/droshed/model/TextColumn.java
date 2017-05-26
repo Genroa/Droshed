@@ -12,5 +12,4 @@ public class TextColumn extends AbstractColumn<String> {
         super(id, name);
     }
 
-
 }

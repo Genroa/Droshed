@@ -1,6 +1,5 @@
 package genrozun.droshed.model;
 
-import java.util.Objects;
 
 /**
  * Created by axelheine on 08/05/2017.
@@ -8,8 +7,8 @@ import java.util.Objects;
 
 public interface Column<T> {
     int getInputType();
-    String buildCellContent(int line);
-    T getValue(int line);
-    void setValue(int line, T newValue);
-    void setValueFromString(int line, String newValue);
+    String buildCellContent(String lineID);
+    T getValue(String lineID);
+    void setValue(String lineID, T newValue);
+    void setValueFromString(String lineID, String newValue);
 }

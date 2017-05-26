@@ -18,8 +18,8 @@ public class DecimalColumn extends ValueColumn<Double> {
     }
 
     @Override
-    public void setValue(int line, Double newValue) {
-        super.setValue(line, Math.max(getMinValue(), Math.min(getMaxValue(), newValue)));
+    public void setValue(String lineID, Double newValue) {
+        super.setValue(lineID, Math.max(getMinValue(), Math.min(getMaxValue(), newValue)));
     }
 
     @Override

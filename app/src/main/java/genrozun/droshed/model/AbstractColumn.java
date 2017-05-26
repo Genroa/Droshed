@@ -3,19 +3,21 @@ package genrozun.droshed.model;
 import android.text.InputType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by genro on 25/05/2017.
  */
 
 public abstract class AbstractColumn<T> implements Column<T> {
-    private final ArrayList<T> values;
+    private final Map<String, T> values;
 
     public AbstractColumn(String id, String name) {
-        values = new ArrayList<T>();
+        values = new HashMap<String, T>();
     }
 
-    ArrayList<T> getValues() {
+    Map<String, T> getValues() {
         return values;
     }
 
@@ -25,29 +27,24 @@ public abstract class AbstractColumn<T> implements Column<T> {
     }
 
     @Override
-    public String buildCellContent(int line) {
-        if(line < 0 || line > values.size()) {
-            return "";
-        }
-        return values.get(line).toString();
+    public String buildCellContent(String lineID) {
+        T value = getValue(lineID);
+        return value != null ? value.toString() : "";
     }
 
     @Override
-    public T getValue(int line) {
-        if(line < 0 || line > values.size()) {
-            throw new IllegalArgumentException();
-        }
-        return values.get(line);
+    public T getValue(String lineID) {
+        return values.get(lineID);
     }
 
     @Override
-    public void setValue(int line, T newValue) {
-        values.add(line, newValue);
+    public void setValue(String lineID, T newValue) {
+        values.put(lineID, newValue);
     }
 
     @Override
-    public void setValueFromString(int line, String newValue) {
-        setValue(line, stringToValue(newValue));
+    public void setValueFromString(String lineID, String newValue) {
+        setValue(lineID, stringToValue(newValue));
     }
 
     T stringToValue(String representation) {
