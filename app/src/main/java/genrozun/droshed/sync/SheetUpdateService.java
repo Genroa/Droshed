@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -133,6 +134,7 @@ public class SheetUpdateService extends IntentService {
     }
 
     private void handleActionGetNewModel(String model) {
+        Context context = getApplicationContext();
         SharedPreferences logins = getSharedPreferences("droshed_logins", Context.MODE_PRIVATE);
         String user = logins.getString("droshed_user", null);
         if(user == null) throw new IllegalStateException("User can't be null");
@@ -151,7 +153,10 @@ public class SheetUpdateService extends IntentService {
             intent.putExtra("status", OPERATION_ERROR);
             broadcastManager.sendBroadcast(intent);
         } else {
-            DataManager.createModel(getApplicationContext(), model, modelSchema);
+            DataManager.createModel(context, model, modelSchema);
+            ArrayList<String> models = DataManager.getModelsList(context);
+            models.add(model);
+            DataManager.setNewModelsList(context, models);
 
             intent.putExtra("status", OPERATION_OK);
             broadcastManager.sendBroadcast(intent);

@@ -23,6 +23,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import genrozun.droshed.model.Model;
@@ -35,7 +36,7 @@ public class FileListActivity extends AppCompatActivity {
     private String modelName;
     private Context appContext;
     private RelativeLayout layout;
-    ArrayList<ListModelItem> models = new ArrayList<>();
+    ArrayList<ListModelItem> models;
     CustomAdapter adapter;
 
     private BroadcastReceiver newModelReceiver;
@@ -80,6 +81,7 @@ public class FileListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_list);
+        models = toListItems(DataManager.getModelsList(getApplicationContext()));
         LocalBroadcastManager.getInstance(this).registerReceiver(newModelReceiver, new IntentFilter("droshed-new-model"));
         LocalBroadcastManager.getInstance(this).registerReceiver(updateModelReceiver, new IntentFilter("droshed-sync"));
         this.appContext = getApplicationContext();
@@ -249,5 +251,14 @@ public class FileListActivity extends AppCompatActivity {
 
             return convertView;
         }
+    }
+
+    private ArrayList<ListModelItem> toListItems(ArrayList<String> models) {
+        ArrayList<ListModelItem> items = new ArrayList<>(models.size());
+        for(String modelName : models) {
+            Log.i("TO_ITEM", "Item to convert: "+modelName);
+            items.add(new ListModelItem(modelName, DataManager.getLastVersionNumberForModel(getApplicationContext(), modelName)));
+        }
+        return items;
     }
 }

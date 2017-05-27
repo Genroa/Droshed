@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 import genrozun.droshed.model.Column;
+import genrozun.droshed.model.Line;
 import genrozun.droshed.model.Model;
 
 /**
@@ -131,13 +132,23 @@ public class SheetView extends View {
 
         int i=1;
         for(Column column : currentModel.getColumns()) {
-            Log.i("DRAW", "Columns: "+currentModel.getColumns());
             canvas.drawText(limitLength(column.getName(), 14),
-                    (paddingLeft-viewPositionX*zoomLevel)+cellWidth*i,
-                    paddingTop+15+cellHeight/2-viewPositionY*zoomLevel,
+                    paddingLeft+5-(viewPositionX*zoomLevel)+cellWidth*i,
+                    paddingTop+15+cellHeight/2-(viewPositionY*zoomLevel),
                     p);
             i++;
         }
+
+        int j=1;
+        for(Line line : currentModel.getLines()) {
+            canvas.drawText(limitLength(line.getName(), 14),
+                    paddingLeft+5-(viewPositionX*zoomLevel),
+                    paddingTop+15+(cellHeight/2)-(viewPositionY*zoomLevel)+(cellHeight*j),
+                    p);
+            j++;
+        }
+
+        Log.i("DRAW", "col1/line1 value: "+currentModel.getColumn("col1").getValue("line1"));
 
     }
 

@@ -1,20 +1,12 @@
 package genrozun.droshed.model;
 
 import android.content.Context;
-import android.util.Log;
-import android.util.Xml;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import genrozun.droshed.R;
+import genrozun.droshed.compat.CollectionUtils;
 import genrozun.droshed.sync.DataManager;
 
 /**
@@ -22,20 +14,29 @@ import genrozun.droshed.sync.DataManager;
  */
 
 public class Model {
-    private ArrayList<Column> columns;
-    private ArrayList<Line> lines;
+    private final ArrayList<Column> columns;
+    private final HashMap<String, Column> columnsById;
+
+    private final ArrayList<Line> lines;
     private String modelName;
 
     public Model(String modelName, ArrayList<Column> columns, ArrayList<Line> lines) {
         this.modelName = modelName;
         this.columns = columns;
+        this.columnsById = CollectionUtils.toMap(columns, Column::getID);
         this.lines = lines;
     }
 
     public static Model createModelFromModelFile(String model, Context context) {
         ModelParser mp = new ModelParser();
         Model m =  mp.parseModel(model, context);
-        DataParser dp = new DataParser(m);
+
+        int version = DataManager.getLastVersionNumberForModel(context, model);
+        if(version > 0) {
+            DataParser dp = new DataParser(m);
+            dp.parseDataFromFile(context);
+        }
+
         return m;
     }
 
@@ -49,6 +50,10 @@ public class Model {
 
     public Column getColumn(int columnIndex) {
         return columns.get(columnIndex);
+    }
+
+    public Column getColumn(String columnID) {
+        return columnsById.get(columnID);
     }
 
     public int getColumnNumber() {
@@ -65,6 +70,10 @@ public class Model {
 
     public List<Column> getColumns() {
         return columns;
+    }
+
+    public List<Line> getLines() {
+        return lines;
     }
 
     @Override

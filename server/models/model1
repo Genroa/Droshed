@@ -4,8 +4,8 @@
 		<column type="integer" min="0" max="20" id="col2">Colonne 2</column>
 	</header>
 	<content>
-		<line id="cont1">Baptiste Blanchard</line>
-		<line id="cont2">Axel Heine</line>
-		<line id="cont3">Thibault Girard</line> 
+		<line id="line1">Baptiste Blanchard</line>
+		<line id="line2">Axel Heine</line>
+		<line id="line3">Thibault Girard</line> 
 	</content>
 </model>

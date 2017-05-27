@@ -1,9 +1,9 @@
 <data>
-	<line id="cont1">
+	<line id="line1">
 		<cell>Val1</cell>
 		<cell>Val2</cell>
 	</line>
-	<line id="cont2">
+	<line id="line2">
 		<cell>Val3</cell>
 		<cell>Val4</cell>
 	</line>

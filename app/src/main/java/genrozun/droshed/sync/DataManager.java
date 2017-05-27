@@ -5,16 +5,59 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class DataManager {
+
+    private static File getModelsListFile(Context context) {
+        String user = checkUser(context);
+
+        File modelsList = new File(context.getFilesDir(), user+"_modellist");
+        if(!modelsList.exists()) try {
+            Log.i("DATAMANAGER", "File wasn't existing. Creating new one...");
+            if(!modelsList.createNewFile()) throw new IllegalStateException("Couldn't create user model list file");
+            setNewModelsList(context, new ArrayList<>());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return  modelsList;
+    }
+
+    public static void setNewModelsList(Context context, ArrayList<String> newList) {
+         try {
+             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(getModelsListFile(context), false));
+             out.writeObject(newList);
+             out.close();
+             Log.i("DATAMANAGER", "New version written to models file: "+newList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static ArrayList<String> getModelsList(Context context) {
+        try {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(getModelsListFile(context)));
+            ArrayList<String> list = (ArrayList<String>) in.readObject();
+            in.close();
+            return list;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
 
     /**
      * Returns the File of the data version of the current logged user for the given model name
