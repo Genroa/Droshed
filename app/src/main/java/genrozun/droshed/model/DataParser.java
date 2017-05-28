@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import genrozun.droshed.sync.DataManager;
+import genrozun.droshed.sync.SheetUpdateService;
 
 /**
  * Created by axelheine on 25/05/2017.
@@ -28,9 +29,11 @@ public class DataParser {
     }
 
     public void parseDataFromFile(Context context) {
+        SheetUpdateService.startReceiveUpdate(context, model.getModelName());
         XmlPullParser parser = Xml.newPullParser();
         try {
             File dataFile = DataManager.getLastVersionData(context, model.getModelName());
+            Log.d(DataParser.class.getName(), dataFile.getAbsolutePath());
             InputStream in_s = new FileInputStream(dataFile);
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in_s, null);
@@ -43,7 +46,7 @@ public class DataParser {
         }
     }
 
-    private void parse(XmlPullParser parser) throws XmlPullParserException {
+    private void parse(XmlPullParser parser) throws XmlPullParserException, IOException {
         String tagName = "";
         String lineId = "";
         Column currentColumn = null;
@@ -51,8 +54,6 @@ public class DataParser {
         int eventType = parser.getEventType();
         while (eventType != XmlPullParser.END_DOCUMENT) {
             switch(eventType) {
-                case XmlPullParser.START_DOCUMENT:
-                    break;
                 case XmlPullParser.START_TAG:
                     tagName = parser.getName();
                     switch (tagName) {
@@ -68,9 +69,11 @@ public class DataParser {
                     break;
 
                 case XmlPullParser.TEXT:
+                    Log.e(DataParser.class.getName(), "enter text case");
                     switch(tagName) {
                         case "cell":
                             String text = parser.getText();
+                            //Log.d(DataParser.class.getName(), "Current line : " + lineId + " currentcell : " + currentColumnIndex + " Text : " + text);
                             currentColumn.setValueFromString(lineId, text);
                     }
                     break;
@@ -78,6 +81,7 @@ public class DataParser {
                     switch(parser.getName()) {
                         case "cell":
                             currentColumnIndex ++;
+                            tagName = "";
                             break;
                         case "line":
                             currentColumnIndex = 0;
@@ -85,6 +89,7 @@ public class DataParser {
                     }
                     break;
             }
+            eventType = parser.next();
         }
     }
 }

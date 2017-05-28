@@ -1,10 +1,10 @@
 <data>
 	<line id="line1">
 		<cell>Val1</cell>
-		<cell>Val2</cell>
+		<cell>2</cell>
 	</line>
 	<line id="line2">
 		<cell>Val3</cell>
-		<cell>Val4</cell>
+		<cell>4</cell>
 	</line>
 </data>

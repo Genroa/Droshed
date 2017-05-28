@@ -149,6 +149,9 @@ public class SheetView extends View {
         }
 
         Log.i("DRAW", "col1/line1 value: "+currentModel.getColumn("col1").getValue("line1"));
+        Log.i("DRAW", "col1/line2 value: "+currentModel.getColumn("col1").getValue("line2"));
+        Log.i("DRAW", "col2/line1 value: "+currentModel.getColumn("col2").getValue("line1"));
+        Log.i("DRAW", "col2/line2 value: "+currentModel.getColumn("col2").getValue("line2"));
 
     }
 
