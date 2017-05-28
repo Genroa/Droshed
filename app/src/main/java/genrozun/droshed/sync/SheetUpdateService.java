@@ -154,9 +154,6 @@ public class SheetUpdateService extends IntentService {
             broadcastManager.sendBroadcast(intent);
         } else {
             DataManager.createModel(context, model, modelSchema);
-            ArrayList<String> models = DataManager.getModelsList(context);
-            models.add(model);
-            DataManager.setNewModelsList(context, models);
 
             intent.putExtra("status", OPERATION_OK);
             broadcastManager.sendBroadcast(intent);

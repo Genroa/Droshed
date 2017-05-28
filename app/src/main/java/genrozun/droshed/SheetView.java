@@ -169,6 +169,7 @@ public class SheetView extends View {
 
     public void setModel(Model model) {
         currentModel = Objects.requireNonNull(model);
+        recomputeDimensions();
         invalidate();
         requestLayout();
     }

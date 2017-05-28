@@ -47,6 +47,20 @@ public class DataManager {
         }
     }
 
+    public static void addModelToModelsList(Context context, String modelToAdd) {
+        ArrayList<String> models = DataManager.getModelsList(context);
+        models.add(modelToAdd);
+        DataManager.setNewModelsList(context, models);
+    }
+
+    public static void deleteModelFromModelsList(Context context, String modelToRemove) {
+        ArrayList<String> models = getModelsList(context);
+        models.remove(modelToRemove);
+        setNewModelsList(context, models);
+
+        // Pour le moment aucune suppression des fichiers locaux
+    }
+
     public static ArrayList<String> getModelsList(Context context) {
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(getModelsListFile(context)));
@@ -196,6 +210,8 @@ public class DataManager {
             SharedPreferences.Editor editor = modelMetadata.edit();
             editor.putInt(user+"_lastVersion", 0);
             editor.apply();
+
+            addModelToModelsList(context, modelName);
 
         } catch(IOException e) {
             throw new IllegalStateException("Can't create new file to save the model, or write model schema to it");
