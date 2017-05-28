@@ -1,13 +1,20 @@
 package genrozun.droshed.model;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import genrozun.droshed.activities.SheetEditActivity;
 import genrozun.droshed.compat.CollectionUtils;
 import genrozun.droshed.sync.DataManager;
+import genrozun.droshed.sync.SheetUpdateService;
 
 /**
  * Created by axelheine on 08/05/2017.
@@ -31,13 +38,18 @@ public class Model {
         ModelParser mp = new ModelParser();
         Model m =  mp.parseModel(model, context);
 
-        int version = DataManager.getLastVersionNumberForModel(context, model);
-        if(version > 0) {
-            DataParser dp = new DataParser(m);
-            dp.parseDataFromFile(context);
-        }
+        m.populateModelWithData(context, model);
 
         return m;
+    }
+
+    public void populateModelWithData(Context context, String model) {
+        int version = DataManager.getLastVersionNumberForModel(context, model);
+        Log.d(Model.class.getName(), "CurrentVersion : " + version);
+        if(version > 0) {
+            DataParser dp = new DataParser(this);
+            dp.parseDataFromFile(context);
+        }
     }
 
     public void addLine(String id, String name) {

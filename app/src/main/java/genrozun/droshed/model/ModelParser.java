@@ -89,7 +89,7 @@ public class ModelParser {
                     break;
                 case XmlPullParser.END_TAG:
                     if(parser.getName().equalsIgnoreCase("column")) {
-                        Log.e(ModelParser.class.getName(), "new column : ");
+                        //Log.e(ModelParser.class.getName(), "new column : ");
                         switch(columnType) {
                             case "text":
                                 column = new TextColumn(columnId, text, parameters);
@@ -105,7 +105,7 @@ public class ModelParser {
                         parameters.clear();
                     }
                     if(parser.getName().equalsIgnoreCase("line")) {
-                        Log.e(ModelParser.class.getName(), "new Line : " + lineId + " " + text);
+                        //Log.e(ModelParser.class.getName(), "new Line : " + lineId + " " + text);
                         lines.add(new Line(lineId, text));
                     }
                     break;
