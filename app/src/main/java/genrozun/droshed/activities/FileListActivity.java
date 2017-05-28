@@ -103,25 +103,19 @@ public class FileListActivity extends AppCompatActivity {
 
             alertDialogBuilder
                     .setCancelable(false)
-                    .setPositiveButton("OK",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    modelName = userInput.getText().toString();
+                    .setPositiveButton("OK",(DialogInterface dialog, int id) -> {
+                        modelName = userInput.getText().toString();
 
-                                    if (modelName.length() == 0) {
-                                        Snackbar.make(layout, "Merci d'entrer le nom d'un modèle", Snackbar.LENGTH_LONG).show();
-                                    } else {
-                                        Log.i(FileListActivity.class.getName(), modelName);
-                                        SheetUpdateService.startGetNewModel(appContext, modelName);
-                                    }
-                                }
-                            })
-                    .setNegativeButton("Cancel",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.cancel();
-                                }
-                            });
+                        if (modelName.length() == 0) {
+                            Snackbar.make(layout, "Merci d'entrer le nom d'un modèle", Snackbar.LENGTH_LONG).show();
+                        } else {
+                            Log.i(FileListActivity.class.getName(), modelName);
+                            SheetUpdateService.startGetNewModel(appContext, modelName);
+                        }
+                    })
+                    .setNegativeButton("Cancel",(DialogInterface dialog, int id) -> {
+                        dialog.cancel();
+                    });
             AlertDialog alertDialog = alertDialogBuilder.create();
             alertDialog.show();
         });
@@ -202,6 +196,32 @@ public class FileListActivity extends AppCompatActivity {
             intent.putExtra("model_name", item.getItemName());
 
             startActivity(intent);
+        });
+
+        modelList.setOnItemLongClickListener((AdapterView<?> parent, View view, int position, long id) -> {
+            LayoutInflater li = LayoutInflater.from(getApplicationContext());
+            View promptView = li.inflate(R.layout.prompt_delete_layout, null);
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FileListActivity.this);
+            alertDialogBuilder.setView(promptView);
+
+            TextView deleteText = (TextView) promptView.findViewById(R.id.delete_prompt_text);
+
+            String modelName = models.get(position).getItemName();
+            deleteText.setText("Do you really want to delete : " + modelName);
+
+            alertDialogBuilder
+                    .setCancelable(false)
+                    .setPositiveButton("OK", (DialogInterface dialog, int clickId) ->{
+                        models.remove(position);
+                        DataManager.deleteModelFromModelsList(appContext, modelName);
+                        adapter.notifyDataSetChanged();
+                    })
+                    .setNegativeButton("Cancel", (DialogInterface dialog, int clickId) -> {
+                        dialog.cancel();
+                    });
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
+            return true;
         });
     }
 
