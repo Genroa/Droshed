@@ -213,7 +213,7 @@ public class SheetView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        //scaleGestureDetector.onTouchEvent(event);
+        scaleGestureDetector.onTouchEvent(event);
         return true;
     }
 
