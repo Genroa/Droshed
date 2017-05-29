@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +21,7 @@ import genrozun.droshed.sync.SheetUpdateService;
  * Created by axelheine on 08/05/2017.
  */
 
-public class Model {
+public class Model implements Serializable {
     private final ArrayList<Column> columns;
     private final HashMap<String, Column> columnsById;
 
