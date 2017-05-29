@@ -130,6 +130,18 @@ public class SheetView extends View {
         p.setTextSize(30);
         p.setStyle(Paint.Style.FILL);
 
+
+
+       int j=1;
+        for(Line line : currentModel.getLines()) {
+            Log.i("DRAW", "Y: "+(paddingTop+15+(cellHeight/2)-(viewPositionY*zoomLevel)+(cellHeight*j)));
+            canvas.drawText(limitLength(line.getName(), 14),
+                    paddingLeft+5-(viewPositionX*zoomLevel),
+                    paddingTop+15+(cellHeight/2)-(viewPositionY*zoomLevel)+(cellHeight*j),
+                    p);
+            j++;
+        }
+
         int i=1;
         for(Column column : currentModel.getColumns()) {
             canvas.drawText(limitLength(column.getName(), 14),
@@ -139,16 +151,6 @@ public class SheetView extends View {
             i++;
         }
 
-        Log.i("DRAW", "Canvas: "+contentWidth+", "+contentHeight);
-        int j=1;
-        for(Line line : currentModel.getLines()) {
-            Log.i("DRAW", "Y: "+(paddingTop+15+(cellHeight/2)-(viewPositionY*zoomLevel)+(cellHeight*j)));
-            canvas.drawText(limitLength(line.getName(), 14),
-                    paddingLeft+5-(viewPositionX*zoomLevel),
-                    paddingTop+15+(cellHeight/2)-(viewPositionY*zoomLevel)+(cellHeight*j),
-                    p);
-            j++;
-        }
         /*
         Log.i("DRAW", "col1/line1 value: "+currentModel.getColumn("col1").getValue("line1"));
         Log.i("DRAW", "col1/line2 value: "+currentModel.getColumn("col1").getValue("line2"));
