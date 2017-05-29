@@ -58,9 +58,10 @@ public class SheetView extends View {
     }
 
     private void init(Context context) {
-        setOnTouchListener(new DragListener(this));
-        scaleGestureDetector = new ScaleGestureDetector(context, new SheetView.PinchListener(this));
         recomputeDimensions();
+        //setOnTouchListener(new ClickListener(this));
+        setOnTouchListener(new DragListener(this));
+        scaleGestureDetector = new ScaleGestureDetector(context, new PinchListener(this));
     }
 
     private void recomputeDimensions() {
@@ -70,7 +71,6 @@ public class SheetView extends View {
         cellWidth = (contentWidth / 4)* zoomLevel;
         cellHeight = (contentHeight / 9)* zoomLevel;
 
-        //setModel(Model.create(""));
         invalidate();
         requestLayout();
     }
@@ -139,20 +139,22 @@ public class SheetView extends View {
             i++;
         }
 
+        Log.i("DRAW", "Canvas: "+contentWidth+", "+contentHeight);
         int j=1;
         for(Line line : currentModel.getLines()) {
+            Log.i("DRAW", "Y: "+(paddingTop+15+(cellHeight/2)-(viewPositionY*zoomLevel)+(cellHeight*j)));
             canvas.drawText(limitLength(line.getName(), 14),
                     paddingLeft+5-(viewPositionX*zoomLevel),
                     paddingTop+15+(cellHeight/2)-(viewPositionY*zoomLevel)+(cellHeight*j),
                     p);
             j++;
         }
-
+        /*
         Log.i("DRAW", "col1/line1 value: "+currentModel.getColumn("col1").getValue("line1"));
         Log.i("DRAW", "col1/line2 value: "+currentModel.getColumn("col1").getValue("line2"));
         Log.i("DRAW", "col2/line1 value: "+currentModel.getColumn("col2").getValue("line1"));
         Log.i("DRAW", "col2/line2 value: "+currentModel.getColumn("col2").getValue("line2"));
-
+        */
     }
 
     private String limitLength(String content, int maxLength) {
@@ -246,14 +248,14 @@ public class SheetView extends View {
                     moveX -= initialX;
                     moveY -= initialY;
 
-                    Log.i("Touch", "X: "+moveX);
-                    Log.i("Touch", "Y: "+moveY);
+                    //Log.i("Touch", "X: "+moveX);
+                    //Log.i("Touch", "Y: "+moveY);
 
                     sheetView.setViewPositionX((diffX - moveX));
                     sheetView.setViewPositionY((diffY - moveY));
 
-                    Log.i("Touch", "viewX: "+sheetView.getViewPositionX());
-                    Log.i("Touch", "viewY: "+sheetView.getViewPositionY());
+                    //Log.i("Touch", "viewX: "+sheetView.getViewPositionX());
+                    //Log.i("Touch", "viewY: "+sheetView.getViewPositionY());
 
 
                     break;
@@ -263,7 +265,7 @@ public class SheetView extends View {
                     sheetView.setViewPositionX(initialX);
                     sheetView.setViewPositionY(initialY);
                 }*/
-                    Log.i("Touch", "End");
+                    //Log.i("Touch", "End");
                     break;
 
                 default:
@@ -274,7 +276,7 @@ public class SheetView extends View {
         }
     }
 
-    public static class PinchListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+    public class PinchListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         private float currentScale;
         private float initialScale;
         private SheetView sheetView;
@@ -292,8 +294,6 @@ public class SheetView extends View {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-
-
             currentScale = initialScale + (detector.getScaleFactor()-1);
             Log.i("Scale", ""+currentScale);
             sheetView.setZoomLevel((float) Math.min(Math.max(0.5, currentScale), 1.5));
@@ -305,6 +305,45 @@ public class SheetView extends View {
         @Override
         public void onScaleEnd(ScaleGestureDetector detector) {
             super.onScaleEnd(detector);
+        }
+    }
+
+    public class ClickListener implements View.OnTouchListener {
+        private SheetView sheetView;
+        private boolean tapping = false;
+
+        public ClickListener(SheetView sheetView) {
+            this.sheetView = sheetView;
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            int x = (int) event.getX();
+            int y = (int) event.getY();
+
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    Log.i("TAG", "touched down");
+                    if(event.getPointerCount() == 1)
+                        tapping = true;
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    Log.i("TAG", "moving: (" + x + ", " + y + ")");
+                    tapping = false;
+                    break;
+                case MotionEvent.ACTION_UP:
+                    if(tapping)
+                        Log.i("TAG", "touched up");
+                    else {
+                        Log.i("TAG", "Tap!");
+                        tapping = false;
+                        return true;
+                    }
+                    break;
+            }
+
+            return false;
         }
     }
 }
