@@ -2,6 +2,7 @@ package genrozun.droshed.model;
 
 import android.text.InputType;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +11,7 @@ import java.util.Map;
  * Created by genro on 25/05/2017.
  */
 
-public abstract class AbstractColumn<T> implements Column<T> {
+public abstract class AbstractColumn<T> implements Column<T>, Serializable {
     private final Map<String, T> values;
     private final String id;
     private String name;

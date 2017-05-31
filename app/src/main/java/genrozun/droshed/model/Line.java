@@ -1,12 +1,13 @@
 package genrozun.droshed.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * Created by axelheine on 26/05/2017.
  */
 
-public class Line {
+public class Line implements Serializable {
     private final String id;
     private String name;
 

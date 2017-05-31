@@ -1,6 +1,7 @@
 package genrozun.droshed;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -13,6 +14,7 @@ import android.view.View;
 import java.util.List;
 import java.util.Objects;
 
+import genrozun.droshed.activities.DataProjectionActivity;
 import genrozun.droshed.model.Column;
 import genrozun.droshed.model.Line;
 import genrozun.droshed.model.Model;
@@ -30,8 +32,6 @@ public class SheetView extends View {
     private float viewPositionX = 0;
     private float viewPositionY = 0;
     private ScaleGestureDetector scaleGestureDetector;
-
-
 
     int contentWidth = getWidth() - paddingLeft - paddingRight;
     int contentHeight = getHeight() - paddingTop - paddingBottom;
@@ -60,8 +60,6 @@ public class SheetView extends View {
     private void init(Context context) {
         recomputeDimensions();
         setOnTouchListener(chain(new ClickListener(this), new DragListener(this)));
-        //setOnTouchListener(new ClickListener(this));
-        //setOnTouchListener(new DragListener(this));
         scaleGestureDetector = new ScaleGestureDetector(context, new PinchListener(this));
     }
 
@@ -253,13 +251,38 @@ public class SheetView extends View {
         int linePosition = (int) Math.floor(realY/(cellHeight*zoomLevel));
 
         if(columnPosition == 0 && linePosition == 0) return;
+        if(columnPosition > currentModel.getColumnNumber() || linePosition > currentModel.getLineNumber()) return;
 
-        if(columnPosition == 0) {
-            Log.i("TOUCH", "Touched line name col");
-        } else if(linePosition == 0) {
+        // Appui sur une cellule en-tête de colonne.
+        if(linePosition == 0) {
             Log.i("TOUCH", "Touched header");
+            Column column = currentModel.getColumn(columnPosition-1);
+            Intent clickIntent = new Intent(getContext(), DataProjectionActivity.class);
+
+            clickIntent.putExtra("model", currentModel);
+            clickIntent.putExtra("projection", "column");
+            clickIntent.putExtra("id", column.getID());
+            clickIntent.putExtra("targetID", "");
+
+            getContext().startActivity(clickIntent);
         } else {
-            Log.i("TOUCH", "Touched cell "+columnPosition+" "+linePosition);
+            Line line = currentModel.getLine(linePosition-1);
+
+            Intent clickIntent = new Intent(getContext(), DataProjectionActivity.class);
+
+            clickIntent.putExtra("model", currentModel);
+            clickIntent.putExtra("projection", "line");
+            clickIntent.putExtra("id", line.getID());
+
+            // Appui sur une ligne
+            if(columnPosition == 0) {
+                Log.i("TOUCH", "Touched line name col");
+                clickIntent.putExtra("targetID", "");
+            } else {
+                clickIntent.putExtra("targetID", currentModel.getColumn(columnPosition-1).getID());
+            }
+
+            getContext().startActivity(clickIntent);
         }
     }
 

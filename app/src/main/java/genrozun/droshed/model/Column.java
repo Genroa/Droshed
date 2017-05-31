@@ -1,6 +1,8 @@
 package genrozun.droshed.model;
 
 
+import java.io.Serializable;
+
 /**
  * Created by axelheine on 08/05/2017.
  */
