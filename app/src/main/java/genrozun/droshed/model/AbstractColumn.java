@@ -41,6 +41,16 @@ public abstract class AbstractColumn<T> implements Column<T> {
         return values.get(lineID);
     }
 
+
+    @Override
+    public String getValueAsString(String lineID) {
+        T value = getValue(lineID);
+        if(value == null)
+            return null;
+
+        return value.toString();
+    }
+
     @Override
     public void setValue(String lineID, T newValue) {
         values.put(lineID, newValue);

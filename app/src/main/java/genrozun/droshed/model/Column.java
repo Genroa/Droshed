@@ -9,6 +9,7 @@ public interface Column<T> {
     int getInputType();
     String buildCellContent(String lineID);
     T getValue(String lineID);
+    String getValueAsString(String lineID);
     void setValue(String lineID, T newValue);
     void setValueFromString(String lineID, String newValue);
     String getID();

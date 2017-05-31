@@ -89,6 +89,8 @@ public class Model implements Serializable {
         return lines;
     }
 
+    public Line getLine(int index) { return lines.get(index); }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

@@ -59,8 +59,9 @@ public class SheetView extends View {
 
     private void init(Context context) {
         recomputeDimensions();
+        setOnTouchListener(chain(new ClickListener(this), new DragListener(this)));
         //setOnTouchListener(new ClickListener(this));
-        setOnTouchListener(new DragListener(this));
+        //setOnTouchListener(new DragListener(this));
         scaleGestureDetector = new ScaleGestureDetector(context, new PinchListener(this));
     }
 
@@ -90,7 +91,7 @@ public class SheetView extends View {
                         paddingTop+contentHeight,
                         p);
 
-        // HEADER
+        // HEADER BACKGROUND COLOR
         p.setColor(Color.parseColor("#c5c5c5"));
         canvas.drawRect(paddingLeft - (viewPositionX * zoomLevel),
                         paddingTop - (viewPositionY * zoomLevel),
@@ -98,14 +99,14 @@ public class SheetView extends View {
                         paddingTop+cellHeight*zoomLevel - (viewPositionY * zoomLevel),
                         p);
 
-        // FIRST COLUMN
+        // LINE ID BACKGROUND COLOR
         canvas.drawRect(paddingLeft - (viewPositionX * zoomLevel),
                 paddingTop - (viewPositionY * zoomLevel),
                 paddingLeft+(cellWidth*zoomLevel) - (viewPositionX * zoomLevel),
                 paddingTop+(cellHeight*(currentModel.getLineNumber()+1)*zoomLevel) - (viewPositionY * zoomLevel),
                 p);
 
-        // GRID
+        // GRID LINES
         p.setColor(Color.parseColor("#a1a1a1"));
         p.setStyle(Paint.Style.FILL_AND_STROKE);
         for(int line = 0; line < currentModel.getLineNumber()+1+1; line ++) {
@@ -127,42 +128,68 @@ public class SheetView extends View {
         }
 
         p.setColor(Color.BLACK);
-        p.setTextSize(30);
+
+        int fontSize = 30;
+
+        p.setTextSize(fontSize);
         p.setStyle(Paint.Style.FILL);
 
+        drawCells(canvas, p);
 
+        drawLineIDs(canvas, p);
 
-       int j=1;
-        for(Line line : currentModel.getLines()) {
-            Log.i("DRAW", "Y: "+(paddingTop+15+(cellHeight/2)-(viewPositionY*zoomLevel)+(cellHeight*j)));
-            canvas.drawText(limitLength(line.getName(), 14),
-                    paddingLeft+5-(viewPositionX*zoomLevel),
-                    paddingTop+15+(cellHeight/2)-(viewPositionY*zoomLevel)+(cellHeight*j),
-                    p);
-            j++;
+        drawHeader(canvas, p);
+    }
+
+    private void drawCells(Canvas canvas, Paint p) {
+        for(int columnNumber = 0; columnNumber < currentModel.getColumnNumber(); columnNumber++) {
+            Column col = currentModel.getColumn(columnNumber);
+
+            for(int lineNumber = 0; lineNumber < currentModel.getLineNumber(); lineNumber++) {
+                Line line = currentModel.getLine(lineNumber);
+
+                String cellValue = col.getValueAsString(line.getID());
+                if(cellValue == null) cellValue = "NULL";
+
+                //Log.i("GRID", "CELL: col=" + col.getID() + " line=" + line.getID());
+
+                canvas.drawText(limitLength(cellValue, (int)((cellWidth*zoomLevel*2)/(p.getTextSize()))),
+                        paddingLeft+5*zoomLevel-(viewPositionX*zoomLevel)+cellWidth*zoomLevel*(columnNumber+1),
+                        paddingTop+15*zoomLevel+(cellHeight/2*zoomLevel)-(viewPositionY*zoomLevel)+(cellHeight*zoomLevel*(lineNumber+1)),
+                        p);
+
+            }
         }
+    }
 
+    private void drawHeader(Canvas canvas, Paint p) {
         int i=1;
         for(Column column : currentModel.getColumns()) {
-            canvas.drawText(limitLength(column.getName(), 14),
-                    paddingLeft+5-(viewPositionX*zoomLevel)+cellWidth*i,
-                    paddingTop+15+cellHeight/2-(viewPositionY*zoomLevel),
+            canvas.drawText(limitLength(column.getName(), (int)((cellWidth*zoomLevel*2)/(p.getTextSize()))),
+                    paddingLeft+5*zoomLevel-(viewPositionX*zoomLevel)+cellWidth*zoomLevel*i,
+                    paddingTop+15*zoomLevel+((cellHeight/2)*zoomLevel)-(viewPositionY*zoomLevel),
                     p);
             i++;
         }
-
-        /*
-        Log.i("DRAW", "col1/line1 value: "+currentModel.getColumn("col1").getValue("line1"));
-        Log.i("DRAW", "col1/line2 value: "+currentModel.getColumn("col1").getValue("line2"));
-        Log.i("DRAW", "col2/line1 value: "+currentModel.getColumn("col2").getValue("line1"));
-        Log.i("DRAW", "col2/line2 value: "+currentModel.getColumn("col2").getValue("line2"));
-        */
     }
+
+    private void drawLineIDs(Canvas canvas, Paint p) {
+        int j=1;
+        for(Line line : currentModel.getLines()) {
+            //Log.i("DRAW", "Y: "+(paddingTop+15+(cellHeight/2)-(viewPositionY*zoomLevel)+(cellHeight*j)));
+            canvas.drawText(limitLength(line.getName(), (int)((cellWidth*zoomLevel*2)/(p.getTextSize()))),
+                    paddingLeft+5*zoomLevel-(viewPositionX*zoomLevel),
+                    paddingTop+15*zoomLevel+(cellHeight/2*zoomLevel)-(viewPositionY*zoomLevel)+(cellHeight*zoomLevel*j),
+                    p);
+            j++;
+        }
+    }
+
 
     private String limitLength(String content, int maxLength) {
         if(content.length() <= maxLength) return content;
 
-        return content.substring(0, maxLength-3)+ "...";
+        return content.substring(0, Math.max(0, maxLength-3))+ "...";
     }
 
     @Override
@@ -188,8 +215,8 @@ public class SheetView extends View {
     public void setZoomLevel(float newLevel) {
         //currentModel.getColumnNumber() * cellWidth * zoomLevel = contentWidth;
         //zoomLevel = contentWidth / (currentModel.getColumnNumber() * cellWidth)
-        Log.i("Zoom", "Max zoomLevel: "+contentWidth / (currentModel.getColumnNumber() * cellWidth));
-        zoomLevel = Math.max(newLevel, contentWidth / (currentModel.getColumnNumber() * cellWidth));
+        Log.i("Zoom", "Max zoomLevel: "+contentWidth / ((currentModel.getColumnNumber()+1) * cellWidth));
+        zoomLevel = Math.max(newLevel, contentWidth / ((currentModel.getColumnNumber()+1) * cellWidth));
         recomputeDimensions();
     }
 
@@ -215,6 +242,25 @@ public class SheetView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         scaleGestureDetector.onTouchEvent(event);
         return true;
+    }
+
+    private void clickEvent(float x, float y) {
+        // Detect on which cell the click event happened on the screen
+        float realX = x + viewPositionX*zoomLevel;
+        float realY = y + viewPositionY*zoomLevel;
+
+        int columnPosition = (int) Math.floor(realX/(cellWidth*zoomLevel));
+        int linePosition = (int) Math.floor(realY/(cellHeight*zoomLevel));
+
+        if(columnPosition == 0 && linePosition == 0) return;
+
+        if(columnPosition == 0) {
+            Log.i("TOUCH", "Touched line name col");
+        } else if(linePosition == 0) {
+            Log.i("TOUCH", "Touched header");
+        } else {
+            Log.i("TOUCH", "Touched cell "+columnPosition+" "+linePosition);
+        }
     }
 
     class DragListener implements View.OnTouchListener {
@@ -278,7 +324,7 @@ public class SheetView extends View {
         }
     }
 
-    public class PinchListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+    class PinchListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         private float currentScale;
         private float initialScale;
         private SheetView sheetView;
@@ -310,13 +356,15 @@ public class SheetView extends View {
         }
     }
 
-    public class ClickListener implements View.OnTouchListener {
+    class ClickListener implements View.OnTouchListener {
         private SheetView sheetView;
         private boolean tapping = false;
 
         public ClickListener(SheetView sheetView) {
             this.sheetView = sheetView;
         }
+        private int originalX;
+        private int originalY;
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
@@ -326,19 +374,25 @@ public class SheetView extends View {
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    Log.i("TAG", "touched down");
-                    if(event.getPointerCount() == 1)
+                    //Log.i("TAG", "touched down");
+                    if(event.getPointerCount() == 1) {
                         tapping = true;
+                        originalX = x;
+                        originalY = y;
+                    }
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    Log.i("TAG", "moving: (" + x + ", " + y + ")");
-                    tapping = false;
+                    if(Math.abs(originalX - x) > 20 || Math.abs(originalY - y) > 20) {
+                        //Log.i("TAG", "moving: (" + x + ", " + y + ")");
+                        tapping = false;
+                    }
                     break;
                 case MotionEvent.ACTION_UP:
-                    if(tapping)
-                        Log.i("TAG", "touched up");
-                    else {
-                        Log.i("TAG", "Tap!");
+                    if(tapping) {
+                        //Log.i("TAG", "touched up");
+                        clickEvent(originalX, originalY);
+                    } else {
+                        //Log.i("TAG", "Tap!");
                         tapping = false;
                         return true;
                     }
@@ -347,5 +401,17 @@ public class SheetView extends View {
 
             return false;
         }
+    }
+
+    private static OnTouchListener chain(OnTouchListener... listeners) {
+        return (View v, MotionEvent event) -> {
+                boolean consumed = false;
+                for(OnTouchListener listener : listeners) {
+                    consumed = listener.onTouch(v, event);
+                    if(consumed) return true;
+                }
+
+                return false;
+            };
     }
 }
