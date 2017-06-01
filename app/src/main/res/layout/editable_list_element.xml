@@ -9,7 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="TextView" />
+        android:text="TextView"
+        android:textColor="@android:color/black" />
 
     <EditText
         android:id="@+id/editable_edittext"
@@ -19,5 +20,6 @@
         android:ems="10"
         android:hint="Hint"
         android:inputType="textPersonName"
-        android:text="Name" />
+        android:text="Name"
+        android:textColor="@android:color/black" />
 </LinearLayout>
