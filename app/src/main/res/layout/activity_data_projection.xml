@@ -9,6 +9,7 @@
     tools:layout_editor_absoluteY="81dp">
 
     <ListView
+        android:id="@+id/data_projection_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </RelativeLayout>

@@ -38,7 +38,6 @@
 
         <activity android:name=".activities.DataProjectionActivity"
             android:parentActivityName=".activities.SheetEditActivity" >
-
         </activity>
     </application>
 </manifest>
