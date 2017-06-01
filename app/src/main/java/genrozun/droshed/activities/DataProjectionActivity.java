@@ -6,6 +6,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,6 +31,7 @@ public class DataProjectionActivity extends AppCompatActivity {
 
     private ArrayList<ListEditableItem> listEditableItems;
     private ArrayAdapter<ListEditableItem> adapter;
+    private Model model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +42,7 @@ public class DataProjectionActivity extends AppCompatActivity {
         listEditableItems = new ArrayList<>();
 
         Log.i("BUNDLE", intent.getBundleExtra("modelBundle").toString());
-        Model model = (Model) intent.getBundleExtra("modelBundle").getSerializable("model");
+        model = (Model) intent.getBundleExtra("modelBundle").getSerializable("model");
         String projection = intent.getStringExtra("projection");
         String id = intent.getStringExtra("id");
         String targetID = intent.getStringExtra("targetID");
@@ -72,8 +74,7 @@ public class DataProjectionActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
+                return super.onOptionsItemSelected(item);
             case R.id.action_disconnect:
                 Intent i = new Intent(getApplicationContext(), LoginActivity.class);
                 i.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
@@ -82,6 +83,7 @@ public class DataProjectionActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
 
     class CustomAdapter extends ArrayAdapter<ListEditableItem> {
         private ArrayList<ListEditableItem> items;

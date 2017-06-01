@@ -51,7 +51,7 @@ public class SheetEditActivity extends AppCompatActivity {
         this.sheetView = (SheetView) findViewById(R.id.grid);
 
         Intent intent = getIntent();
-        this.currentModelName = intent.getStringExtra("model_name");
+        this.currentModelName = intent.getExtras().getString("model_name");
         this.currentModel = Model.createModelFromModelFile(currentModelName, getApplicationContext());
         SheetUpdateService.startReceiveUpdate(getApplicationContext(), currentModelName);
 
