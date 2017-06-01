@@ -38,4 +38,9 @@ public class IntegerColumn extends ValueColumn<Integer> {
     Integer stringToValue(String representation) {
         return Integer.valueOf(representation);
     }
+
+    @Override
+    public Integer getDefaultValue() {
+        return 0;
+    }
 }

@@ -55,10 +55,12 @@ public class Model implements Serializable {
 
     public void addLine(String id, String name) {
         lines.add(new Line(id, name));
+
     }
 
     public void addColumn(Column column) {
         columns.add(column);
+        columnsById.put(column.getID(), column);
     }
 
     public Column getColumn(int columnIndex) {

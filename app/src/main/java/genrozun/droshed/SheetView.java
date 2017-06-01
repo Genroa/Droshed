@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -147,7 +148,7 @@ public class SheetView extends View {
                 Line line = currentModel.getLine(lineNumber);
 
                 String cellValue = col.getValueAsString(line.getID());
-                if(cellValue == null) cellValue = "NULL";
+                //if(cellValue == null) cellValue = "NULL";
 
                 //Log.i("GRID", "CELL: col=" + col.getID() + " line=" + line.getID());
 
@@ -259,18 +260,22 @@ public class SheetView extends View {
             Column column = currentModel.getColumn(columnPosition-1);
             Intent clickIntent = new Intent(getContext(), DataProjectionActivity.class);
 
-            clickIntent.putExtra("model", currentModel);
+            Bundle b = new Bundle();
+            b.putSerializable("model", currentModel);
+            clickIntent.putExtra("modelBundle", b);
             clickIntent.putExtra("projection", "column");
             clickIntent.putExtra("id", column.getID());
             clickIntent.putExtra("targetID", "");
-
+            Log.i("BUNDLE", b.toString());
             getContext().startActivity(clickIntent);
         } else {
             Line line = currentModel.getLine(linePosition-1);
 
             Intent clickIntent = new Intent(getContext(), DataProjectionActivity.class);
 
-            clickIntent.putExtra("model", currentModel);
+            Bundle b = new Bundle();
+            b.putSerializable("model", currentModel);
+            clickIntent.putExtra("modelBundle", b);
             clickIntent.putExtra("projection", "line");
             clickIntent.putExtra("id", line.getID());
 
@@ -281,7 +286,7 @@ public class SheetView extends View {
             } else {
                 clickIntent.putExtra("targetID", currentModel.getColumn(columnPosition-1).getID());
             }
-
+            Log.i("BUNDLE", b.toString());
             getContext().startActivity(clickIntent);
         }
     }

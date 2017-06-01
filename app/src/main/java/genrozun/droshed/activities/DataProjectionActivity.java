@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -33,19 +35,30 @@ public class DataProjectionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_data_projection);
+
+        Intent intent = getIntent();
         listEditableItems = new ArrayList<>();
 
-        Model m = Model.createModelFromModelFile("model1", getApplicationContext()); //TODO : Warning : Model chargé en dur
-        String columnId = "col1";
+        Log.i("BUNDLE", intent.getBundleExtra("modelBundle").toString());
+        Model model = (Model) intent.getBundleExtra("modelBundle").getSerializable("model");
+        String projection = intent.getStringExtra("projection");
+        String id = intent.getStringExtra("id");
+        String targetID = intent.getStringExtra("targetID");
 
-        Column c = m.getColumn(columnId);
-        for (Line l : m.getLines()) {
-            listEditableItems.add(new ListEditableItem(c.getValue(l.getID()), c.getInputType(), l.getName()));
+        if(projection.equals("column")) {
+            Column col = model.getColumn(id);
+            for(Line line : model.getLines()) {
+                listEditableItems.add(new ListEditableItem(col.getValue(line.getID()), col.getInputType(), col.getName(), line.getID()));
+            }
+        } else {
+            for(Column col : model.getColumns()) {
+                listEditableItems.add(new ListEditableItem(col.getValue(id), col.getInputType(), col.getName(), col.getID()));
+            }
         }
 
-        //adapter = new CustomAdapter(getApplicationContext(), R.layout.editable_list_element, listEditableItems);
-        //ListView lv = (ListView) findViewById(R.id.data_projection_list);
-        //lv.setAdapter(adapter);
+        adapter = new CustomAdapter(getApplicationContext(), listEditableItems);
+        ListView lv = (ListView) findViewById(R.id.data_projection_list);
+        lv.setAdapter(adapter);
     }
 
     @Override
@@ -73,8 +86,8 @@ public class DataProjectionActivity extends AppCompatActivity {
     class CustomAdapter extends ArrayAdapter<ListEditableItem> {
         private ArrayList<ListEditableItem> items;
 
-        public CustomAdapter(Context context, int resource, ArrayList<ListEditableItem> items) {
-            super(context, resource, items);
+        public CustomAdapter(Context context, ArrayList<ListEditableItem> items) {
+            super(context, 0, items);
             this.items = items;
         }
 
@@ -94,6 +107,7 @@ public class DataProjectionActivity extends AppCompatActivity {
 
             edit.setInputType(e.getType());
             edit.setText(e.getValue().toString());
+            edit.setHint("Entrez du texte ici");
 
 
             //rb.setText((version == 0 ? "Pas de données":"Version : " + version));

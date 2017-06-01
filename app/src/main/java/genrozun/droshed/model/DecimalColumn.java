@@ -31,4 +31,10 @@ public class DecimalColumn extends ValueColumn<Double> {
     Double stringToValue(String representation) {
         return Double.valueOf(representation);
     }
+
+    @Override
+    public Double getDefaultValue() {
+        return 0.0;
+    }
+
 }
