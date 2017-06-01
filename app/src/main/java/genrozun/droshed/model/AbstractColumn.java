@@ -39,7 +39,8 @@ public abstract class AbstractColumn<T> implements Column<T>, Serializable {
 
     @Override
     public T getValue(String lineID) {
-        return values.get(lineID);
+        T value = values.get(lineID);
+        return value != null ? value : getDefaultValue();
     }
 
 

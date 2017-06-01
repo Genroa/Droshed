@@ -12,4 +12,8 @@ public class TextColumn extends AbstractColumn<String> {
         super(id, name);
     }
 
+    @Override
+    public String getDefaultValue() {
+        return "";
+    }
 }

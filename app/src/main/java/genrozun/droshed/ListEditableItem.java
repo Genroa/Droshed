@@ -11,11 +11,13 @@ public class ListEditableItem<T> {
     private T value;
     private int type;
     private String label;
+    private String targetID;
 
-    public ListEditableItem(T value, int type, String label) {
+    public ListEditableItem(T value, int type, String label, String targetID) {
         this.value = value;
         this.type = type;
         this.label = label;
+        this.targetID = targetID;
     }
 
     public T getValue() {
@@ -29,4 +31,6 @@ public class ListEditableItem<T> {
     public String getLabel() {
         return label;
     }
+
+    public String getTargetID() { return targetID; }
 }
