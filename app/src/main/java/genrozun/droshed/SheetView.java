@@ -263,6 +263,8 @@ public class SheetView extends View {
             Bundle b = new Bundle();
             b.putSerializable("model", currentModel);
             clickIntent.putExtra("modelBundle", b);
+
+            clickIntent.putExtra("title", column.getName());
             clickIntent.putExtra("projection", "column");
             clickIntent.putExtra("id", column.getID());
             clickIntent.putExtra("targetID", "");
@@ -276,6 +278,8 @@ public class SheetView extends View {
             Bundle b = new Bundle();
             b.putSerializable("model", currentModel);
             clickIntent.putExtra("modelBundle", b);
+
+            clickIntent.putExtra("title", line.getName());
             clickIntent.putExtra("projection", "line");
             clickIntent.putExtra("id", line.getID());
 

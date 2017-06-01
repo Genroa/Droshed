@@ -41,6 +41,8 @@ public class DataProjectionActivity extends AppCompatActivity {
         Intent intent = getIntent();
         listEditableItems = new ArrayList<>();
 
+        setTitle(intent.getStringExtra("title"));
+
         Log.i("BUNDLE", intent.getBundleExtra("modelBundle").toString());
         model = (Model) intent.getBundleExtra("modelBundle").getSerializable("model");
         String projection = intent.getStringExtra("projection");
@@ -50,7 +52,7 @@ public class DataProjectionActivity extends AppCompatActivity {
         if(projection.equals("column")) {
             Column col = model.getColumn(id);
             for(Line line : model.getLines()) {
-                listEditableItems.add(new ListEditableItem(col.getValue(line.getID()), col.getInputType(), col.getName(), line.getID()));
+                listEditableItems.add(new ListEditableItem(col.getValue(line.getID()), col.getInputType(), line.getName(), line.getID()));
             }
         } else {
             for(Column col : model.getColumns()) {
@@ -111,8 +113,8 @@ public class DataProjectionActivity extends AppCompatActivity {
             edit.setText(e.getValue().toString());
             edit.setHint("Entrez du texte ici");
 
+            title.setText(e.getLabel());
 
-            //rb.setText((version == 0 ? "Pas de données":"Version : " + version));
             return convertView;
         }
     }
