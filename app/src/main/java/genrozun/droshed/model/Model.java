@@ -110,4 +110,20 @@ public class Model implements Serializable {
         }
         return sb.toString();
     }
+
+    public String exportData() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("<data>\n");
+
+        for(Line line : getLines()) {
+            sb.append("\t<line id=\"").append(line.getID()).append("\">\n");
+            for(Column c : getColumns()) {
+                sb.append("\t\t<cell>").append(c.getValueAsString(line.getID())).append("</cell>\n");
+            }
+            sb.append("\t</line>\n");
+        }
+
+        return sb.append("</data>\n").toString();
+    }
 }

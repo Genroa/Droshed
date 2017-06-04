@@ -1,7 +1,11 @@
 package genrozun.droshed;
 
+import android.content.Context;
+
 import java.util.Date;
 import java.util.Objects;
+
+import genrozun.droshed.sync.DataManager;
 
 /**
  * Created by axelheine on 04/05/2017.
@@ -9,20 +13,15 @@ import java.util.Objects;
 
 public class ListModelItem {
     private final String itemName;
-    private int version;
+    private Context context;
 
-    public ListModelItem(String itemName, int version) {
-
+    public ListModelItem(Context context, String itemName) {
         this.itemName = itemName;
-        this.version = version;
-    }
-
-    public void setVersion(int version) {
-        this.version = Objects.requireNonNull(version);
+        this.context = context;
     }
 
     public int getVersion() {
-        return version;
+        return DataManager.getLastVersionNumberForModel(context, itemName);
     }
 
     public String getItemName() {
@@ -31,6 +30,6 @@ public class ListModelItem {
 
     @Override
     public String toString() {
-        return itemName+"/"+version;
+        return itemName+"/"+getVersion();
     }
 }

@@ -53,8 +53,11 @@ public class FileListActivity extends AppCompatActivity {
                     Snackbar.make(layout, "Success getting model", Snackbar.LENGTH_SHORT).show();
                     String modelName = intent.getStringExtra("model_name");
                     int modelVersion = DataManager.getLastVersionNumberForModel(getApplicationContext(), modelName);
-                    models.add(new ListModelItem(modelName, modelVersion));
+                    models.add(new ListModelItem(getApplicationContext(), modelName));
                     adapter.notifyDataSetChanged();
+
+                    SheetUpdateService.startReceiveUpdate(getApplicationContext(), modelName);
+
                 } else {
                     Snackbar.make(layout, "Le modèle n'existe pas.", Snackbar.LENGTH_SHORT).show();
                 }
@@ -66,10 +69,12 @@ public class FileListActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String modelName = intent.getStringExtra("model_name");
-                int modelVersion = intent.getIntExtra("model_version", 0);
+                int modelVersion = intent.getIntExtra("last_version", 0);
+
+                Log.i("UPDATE", "Received new version: "+modelVersion);
+
                 for (ListModelItem item: models) {
                     if (item.getItemName().equals(modelName)) {
-                        item.setVersion(modelVersion);
                         adapter.notifyDataSetChanged();
                         break;
                     }
@@ -82,10 +87,17 @@ public class FileListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_list);
+
+        this.appContext = getApplicationContext();
+
         models = toListItems(DataManager.getModelsList(getApplicationContext()));
+
+        for(ListModelItem item : models) {
+            SheetUpdateService.startSendDataUpdate(appContext, item.getItemName());
+        }
+
         LocalBroadcastManager.getInstance(this).registerReceiver(newModelReceiver, new IntentFilter("droshed-new-model"));
         LocalBroadcastManager.getInstance(this).registerReceiver(updateModelReceiver, new IntentFilter("droshed-sync"));
-        this.appContext = getApplicationContext();
 
         layout = (RelativeLayout) findViewById(R.id.activity_file_list);
 
@@ -123,69 +135,6 @@ public class FileListActivity extends AppCompatActivity {
         adapter = new CustomAdapter(getApplicationContext(), R.layout.file_model_list_element_layout, models);
         ListView lv = (ListView) layout.findViewById(R.id.list_view_models);
         lv.setAdapter(adapter);
-
-        /*
-        * -----------------------------------
-        * |                                 |
-        * |    Following code only here     |
-        * |    for tests of xml parser      |
-        * |                                 |
-        * -----------------------------------
-        */
-        /*HashMap<String, Function<HashMap<String,String>, Column>> columnTypes = new HashMap<>();
-
-        /*(map) -> {
-            Log.d(FileListActivity.class.getName(), map.get("id"));
-            TextColumn tc = new TextColumn(map.get("id"));
-            tc.setName(map.get("name"));
-            tc.setValueFromString(map.get("value"));
-            return tc;
-        }*/
-        /*columnTypes.put("text", new Function<HashMap<String, String>, Column>() {
-            @Override
-            public Column apply(HashMap<String, String> map) {
-                Log.d(FileListActivity.class.getName(), map.get("id"));
-                return new TextColumn(map.get("id"));
-            }
-        });
-
-        /*(map) -> {
-            Log.d(FileListActivity.class.getName(), map.get("id"));
-            ValueColumn vc = new ValueColumn(map.get("id"));
-            vc.setName(map.get("name"));
-            vc.setValueFromString(Double.parseDouble(map.get("value")));
-            vc.setMin(Double.parseDouble(map.get("min")));
-            vc.setMax(Double.parseDouble(map.get("max")));
-            return vc;
-        }*/
-        /*columnTypes.put("value", new Function<HashMap<String, String>, Column>() {
-            @Override
-            public Column apply(HashMap<String, String> map) {
-                Log.d(FileListActivity.class.getName(), map.get("id"));
-                return new ValueColumn(map.get("id"));
-            }
-        });*/
-
-        /*Log.e(FileListActivity.class.getName(), "before");
-        ModelParser mp = new ModelParser();
-        XmlPullParser parser = Xml.newPullParser();
-        ArrayList<Column> cols = null;
-        try {
-            InputStream in_s = getResources().openRawResource(R.raw.model1);
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(in_s, null);
-            cols = mp.parse(parser);
-            Log.e(FileListActivity.class.getName(), "cols" + cols.toString());
-        } catch (IOException e) {
-            //TODO gestion des exceptions
-            Log.e(FileListActivity.class.getName(), e.toString());
-        } catch (XmlPullParserException e) {
-            Log.e(FileListActivity.class.getName(), e.toString());
-        }*/
-
-        /*Model m = Model.createModelFromModelFile("model1", getApplicationContext());
-        Log.i(FileListActivity.class.getName(), m.toString());*/
-
 
         ListView modelList = (ListView) findViewById(R.id.list_view_models);
         modelList.setOnItemClickListener((adapter, view, position, id) -> {
@@ -278,8 +227,14 @@ public class FileListActivity extends AppCompatActivity {
         ArrayList<ListModelItem> items = new ArrayList<>(models.size());
         for(String modelName : models) {
             Log.i("TO_ITEM", "Item to convert: "+modelName);
-            items.add(new ListModelItem(modelName, DataManager.getLastVersionNumberForModel(getApplicationContext(), modelName)));
+            items.add(new ListModelItem(getApplicationContext(), modelName));
         }
         return items;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        adapter.notifyDataSetChanged();
     }
 }

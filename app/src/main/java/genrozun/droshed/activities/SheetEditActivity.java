@@ -58,4 +58,13 @@ public class SheetEditActivity extends AppCompatActivity {
 
         sheetView.setModel(currentModel);
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        currentModel = Model.createModelFromModelFile(currentModelName, getApplicationContext());
+        sheetView.setModel(currentModel);
+        sheetView.invalidate();
+        sheetView.requestLayout();
+    }
 }

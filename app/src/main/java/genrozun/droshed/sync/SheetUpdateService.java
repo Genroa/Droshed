@@ -21,6 +21,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -35,8 +36,6 @@ public class SheetUpdateService extends IntentService {
     private static final String ACTION_SEND_MODEL_UPDATE = "genrozun.droshed.action.SEND_MODEL_UPDATE";
     private static final String ACTION_GET_NEW_MODEL = "genrozun.droshed.action.GET_NEW_MODEL";
 
-
-    private static final String CURRENT_CLIENT_VERSION = "genrozun.droshed.extra.CURRENT_CLIENT_VERSION";
     private static final String MODEL_NAME = "genrozun.droshed.extra.MODEL_NAME";
 
 
@@ -69,11 +68,10 @@ public class SheetUpdateService extends IntentService {
      *
      * @see IntentService
      */
-    public static void startSendDataUpdate(Context context, String modelName, int versionToSend) {
+    public static void startSendDataUpdate(Context context, String modelName) {
         Intent intent = new Intent(context, SheetUpdateService.class);
         intent.setAction(ACTION_SEND_DATA_UPDATE);
         intent.putExtra(MODEL_NAME, modelName);
-        intent.putExtra(CURRENT_CLIENT_VERSION, versionToSend);
         context.startService(intent);
     }
 
@@ -107,7 +105,6 @@ public class SheetUpdateService extends IntentService {
             broadcastManager = LocalBroadcastManager.getInstance(this);
             final String action = intent.getAction();
             final String modelName = intent.getStringExtra(MODEL_NAME);
-            final int version = intent.getIntExtra(CURRENT_CLIENT_VERSION, -1);
 
             switch(action) {
                 case ACTION_CHECK_AUTH:
@@ -119,7 +116,7 @@ public class SheetUpdateService extends IntentService {
                     break;
 
                 case ACTION_SEND_DATA_UPDATE:
-                    handleActionSendDataUpdate(modelName, version);
+                    handleActionSendDataUpdate(modelName);
                     break;
 
                 case ACTION_SEND_MODEL_UPDATE:
@@ -248,7 +245,7 @@ public class SheetUpdateService extends IntentService {
         try {
             url = new URL(urlPath);
         } catch (MalformedURLException e) {
-            //do nothing
+            Log.i("URL ERROR", "Url error: "+urlPath);
         }
 
         HttpURLConnection urlConnection = null;
@@ -261,13 +258,22 @@ public class SheetUpdateService extends IntentService {
 
             if(content != null) {
                 ByteBuffer requestBody = Charset.forName("UTF-8").encode(content);
+                byte[] data = requestBody.array();
+
                 urlConnection.setDoOutput(true);
                 urlConnection.setRequestProperty("Content-Length", ""+requestBody.capacity());
                 urlConnection.setRequestProperty("Content-Type", "text/html; charset=utf-8");
 
 
+                Log.i("SERVICE", "Content length of request body: "+requestBody.remaining());
+                Log.i("SERVICE", "String data: "+content);
+                Log.i("SERVICE", "Array? "+requestBody.hasArray());
+                Log.i("SERVICE", "Data:"+ Arrays.toString(data));
+                Log.i("SERVICE", "Lengths: "+requestBody.remaining()+" "+data.length);
+
                 BufferedOutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
-                out.write(requestBody.array());
+                out.write(data, 0, requestBody.capacity());
+                out.flush();
             }
 
             // Read answer
@@ -282,7 +288,7 @@ public class SheetUpdateService extends IntentService {
                 ByteBuffer wrapped = ByteBuffer.wrap(tmp);
                 String body = Charset.forName("UTF-8").decode(wrapped).toString();
 
-                Log.i("SERVICE", "Data: "+body);
+                //Log.i("SERVICE", "Data: "+body);
                 return new HTTPResponse(urlConnection, body);
             }
         } catch (IOException e) {
@@ -300,14 +306,20 @@ public class SheetUpdateService extends IntentService {
      * Handle action Baz in the provided background thread with the provided
      * parameters.
      */
-    private void handleActionSendDataUpdate(String model, int version) {
-        String fileContent = DataManager.getContentFromFile(DataManager.getDataVersion(getApplicationContext(), model, version));
-        sendPutQuery("/"+model+"/data/"+version, fileContent);
+    private void handleActionSendDataUpdate(String model) {
+        int currentClientVersion = DataManager.getLastVersionNumberForModel(getApplicationContext(), model);
+        int lastServerVersion = askServerLastVersion(model);
+
+        while(currentClientVersion > lastServerVersion) {
+            String fileContent = DataManager.getContentFromFile(DataManager.getDataVersion(getApplicationContext(), model, lastServerVersion+1));
+            sendPutQuery(CURRENT_SERVER_IP + "/"+model+"/data/"+(lastServerVersion+1), fileContent);
+            lastServerVersion++;
+        }
     }
 
     private void handleActionSendModelUpdate(String model) {
         String fileContent = DataManager.getContentFromFile(DataManager.getModel(getApplicationContext(), model));
-        sendPutQuery("/"+model+"/model", fileContent);
+        sendPutQuery(CURRENT_SERVER_IP + "/"+model+"/model", fileContent);
     }
 
     private void handleActionCheckAuth() {

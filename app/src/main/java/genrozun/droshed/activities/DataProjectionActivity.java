@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -24,6 +26,8 @@ import genrozun.droshed.R;
 import genrozun.droshed.model.Column;
 import genrozun.droshed.model.Line;
 import genrozun.droshed.model.Model;
+import genrozun.droshed.sync.DataManager;
+import genrozun.droshed.sync.SheetUpdateService;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
@@ -43,7 +47,7 @@ public class DataProjectionActivity extends AppCompatActivity {
 
         setTitle(intent.getStringExtra("title"));
 
-        Log.i("BUNDLE", intent.getBundleExtra("modelBundle").toString());
+        //Log.i("BUNDLE", intent.getBundleExtra("modelBundle").toString());
         model = (Model) intent.getBundleExtra("modelBundle").getSerializable("model");
         String projection = intent.getStringExtra("projection");
         String id = intent.getStringExtra("id");
@@ -52,11 +56,11 @@ public class DataProjectionActivity extends AppCompatActivity {
         if(projection.equals("column")) {
             Column col = model.getColumn(id);
             for(Line line : model.getLines()) {
-                listEditableItems.add(new ListEditableItem(col.getValue(line.getID()), col.getInputType(), line.getName(), line.getID()));
+                listEditableItems.add(new ListEditableItem(model, line.getName(), col.getID(), line.getID(), line.getID()));
             }
         } else {
             for(Column col : model.getColumns()) {
-                listEditableItems.add(new ListEditableItem(col.getValue(id), col.getInputType(), col.getName(), col.getID()));
+                listEditableItems.add(new ListEditableItem(model, col.getName(), col.getID(), id, col.getID()));
             }
         }
 
@@ -75,8 +79,8 @@ public class DataProjectionActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                return super.onOptionsItemSelected(item);
+            //case android.R.id.home:
+                //return super.onOptionsItemSelected(item);
             case R.id.action_disconnect:
                 Intent i = new Intent(getApplicationContext(), LoginActivity.class);
                 i.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
@@ -89,6 +93,7 @@ public class DataProjectionActivity extends AppCompatActivity {
 
     class CustomAdapter extends ArrayAdapter<ListEditableItem> {
         private ArrayList<ListEditableItem> items;
+        private boolean needToRefresh = false;
 
         public CustomAdapter(Context context, ArrayList<ListEditableItem> items) {
             super(context, 0, items);
@@ -100,6 +105,8 @@ public class DataProjectionActivity extends AppCompatActivity {
             return items.size();
         }
 
+
+
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             ListEditableItem e = items.get(position);
@@ -110,8 +117,41 @@ public class DataProjectionActivity extends AppCompatActivity {
             EditText edit = (EditText) convertView.findViewById(R.id.editable_edittext);
 
             edit.setInputType(e.getType());
-            edit.setText(e.getValue().toString());
+            edit.getText().clear();
+            edit.append(e.getValue().toString());
             edit.setHint("Entrez du texte ici");
+
+            edit.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    //Log.i("EDIT", "Text changed for cell "+e.getLineID()+"/"+e.getColumnID());
+                    e.setValue(s.toString());
+                    needToRefresh = true;
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                }
+            });
+
+            edit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (!hasFocus && needToRefresh) {
+                        Log.i("FOCUS", "Loosed focus");
+                        notifyDataSetChanged();
+                        needToRefresh = false;
+
+                        //Log.i("FOCUS", model.exportData());
+                        DataManager.createNewVersion(getApplicationContext(), model.getModelName(), model.exportData());
+                        SheetUpdateService.startSendDataUpdate(getApplicationContext(), model.getModelName());
+                    }
+                }
+            });
 
             title.setText(e.getLabel());
 

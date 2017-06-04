@@ -290,7 +290,7 @@ public class SheetView extends View {
             } else {
                 clickIntent.putExtra("targetID", currentModel.getColumn(columnPosition-1).getID());
             }
-            Log.i("BUNDLE", b.toString());
+            //Log.i("BUNDLE", b.toString());
             getContext().startActivity(clickIntent);
         }
     }
